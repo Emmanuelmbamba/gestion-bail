@@ -1,0 +1,241 @@
+const Bien = require("../models/Bien");
+const Contrat = require("../models/Contrat");
+const DemandeVisite = require("../models/DemandeVisite");
+const jwt = require("jsonwebtoken");
+const jwtConfig = require("../config/jwt"); 
+
+// =======================
+// Ajouter un bien
+// =======================
+exports.createBien = async (req, res) => {
+    try {
+
+        let images = [];
+
+        if (req.files && req.files.length > 0) {
+            images = req.files.map(file => `/uploads/biens/${file.filename}`);
+        }
+
+        const bien = new Bien({
+            ...req.body,
+            images,
+            proprietaire: req.user.id
+        });
+
+        await bien.save();
+
+        res.status(201).json({
+            message: "Bien publié avec succès",
+            bien
+        });
+
+    } catch (error) {
+
+        console.error("Erreur createBien :", error);
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+};
+
+
+// =======================
+// Liste des biens
+// =======================
+exports.getBiens = async (req, res) => {
+
+    try {
+
+        let query = {};
+
+                const { dashboard } = req.query;
+
+        if (dashboard === "true") {
+            const token = req.headers.authorization?.split(" ")[1];
+
+            if (token) {
+
+                try {
+
+                    const decoded = jwt.verify(token, jwtConfig.secret);
+
+                    if (decoded.role === "bailleur") {
+
+                        query = {
+                            proprietaire: decoded.id
+                        };
+
+                    } else if (decoded.role === "locataire") {
+
+                        const contrats = await Contrat.find({
+                            locataire: decoded.id
+                        }).select("bien");
+
+                        const ids = contrats.map(c => c.bien);
+
+                        query = {
+                            _id: { $in: ids }
+                        };
+
+                    }
+
+                } catch (err) {
+                    console.log("Token ignoré :", err.message);
+                }
+
+            }
+        }
+
+        const biens = await Bien.find(query)
+            .populate("proprietaire", "nom email")
+            .sort({
+                createdAt: -1
+            });
+
+        res.json(biens);
+
+    } catch (error) {
+
+        console.error("Erreur getBiens :", error);
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+
+};
+
+
+// =======================
+// Détail d'un bien
+// =======================
+exports.getBienById = async (req, res) => {
+
+    try {
+
+        console.log("ID reçu :", req.params.id);
+
+        const bien = await Bien.findById(req.params.id)
+            .populate("proprietaire", "nom email");
+
+        if (!bien) {
+
+            return res.status(404).json({
+                message: "Bien introuvable"
+            });
+
+        }
+
+        res.json(bien);
+
+    } catch (error) {
+
+        console.error("Erreur getBienById :", error);
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+
+};
+
+
+// =======================
+// Recherche
+// =======================
+exports.searchBien = async (req, res) => {
+
+    try {
+
+        const { ville, type, min, max } = req.query;
+
+        let filtre = {};
+
+        if (ville) {
+            filtre.ville = ville;
+        }
+
+        if (type) {
+            filtre.type = type;
+        }
+
+        if (min) {
+            filtre.prix = {
+                $gte: Number(min)
+            };
+        }
+
+        if (max) {
+            filtre.prix = {
+                ...filtre.prix,
+                $lte: Number(max)
+            };
+        }
+
+        const biens = await Bien.find(filtre);
+
+        res.json(biens);
+
+    } catch (error) {
+
+        console.error("Erreur searchBien :", error);
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+
+};
+
+
+// =======================
+// Supprimer un bien
+// =======================
+exports.deleteBien = async (req, res) => {
+
+    try {
+
+        const bien = await Bien.findById(req.params.id);
+
+        if (!bien) {
+
+            return res.status(404).json({
+                message: "Bien introuvable"
+            });
+
+        }
+
+        if (
+            bien.proprietaire &&
+            bien.proprietaire.toString() !== req.user.id &&
+            req.user.role !== "admin"
+        ) {
+
+            return res.status(403).json({
+                message: "Action non autorisée"
+            });
+
+        }
+
+        await Bien.findByIdAndDelete(req.params.id);
+
+        res.json({
+            message: "Bien supprimé avec succès"
+        });
+
+    } catch (error) {
+
+        console.error("Erreur deleteBien :", error);
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+
+};
