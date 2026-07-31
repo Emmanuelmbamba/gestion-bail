@@ -1,0 +1,23 @@
+# Node.js
+node_modules/
+**/node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Variables d'environnement
+.env
+.env.*
+
+# Build
+dist/
+build/
+
+# Vite
+.vite/
+
+# OS
+.DS_Store
+Thumbs.db
