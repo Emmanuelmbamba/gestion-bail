@@ -31,10 +31,10 @@ function Register() {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/register",
-        formData
-      );
+     const response = await axios.post(
+  "https://gestion-bail.onrender.com/api/auth/register",
+  formData
+);
 
       setSuccess(true);
       setMessage(response.data.message || "Compte créé avec succès ! Redirection vers la page de connexion...");
