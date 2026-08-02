@@ -3,6 +3,8 @@ const Contrat = require("../models/Contrat");
 const DemandeVisite = require("../models/DemandeVisite");
 const jwt = require("jsonwebtoken");
 const jwtConfig = require("../config/jwt"); 
+const cloudinary = require("../config/cloudinary");
+const fs = require("fs");
 
 // =======================
 // Ajouter un bien
@@ -10,12 +12,22 @@ const jwtConfig = require("../config/jwt");
 exports.createBien = async (req, res) => {
     try {
 
-        let images = [];
+       let images = [];
 
-        if (req.files && req.files.length > 0) {
-            images = req.files.map(file => file.path);
-        }
+if (req.files && req.files.length > 0) {
 
+    for (const file of req.files) {
+
+        const result = await cloudinary.uploader.upload(file.path, {
+            folder: "gestion-bail"
+        });
+
+        images.push(result.secure_url);
+
+        fs.unlinkSync(file.path);
+    }
+
+}
         const bien = new Bien({
             ...req.body,
             images,
