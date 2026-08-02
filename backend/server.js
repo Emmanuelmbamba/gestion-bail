@@ -51,17 +51,35 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
+
       scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      fontSrc: ["'self'", "https:"],
-    connectSrc: [
-                "'self'",
-                "http://localhost:5000",
-                "http://localhost:5173",
-                "https://gestion-bail-frontend.onrender.com",
-    ],
+
+      styleSrc: [
+        "'self'",
+        "'unsafe-inline'"
+      ],
+
+      imgSrc: [
+        "'self'",
+        "data:",
+        "https:"
+      ],
+
+      fontSrc: [
+        "'self'",
+        "https:"
+      ],
+
+      connectSrc: [
+        "'self'",
+        "http://localhost:5000",
+        "http://localhost:5173",
+        "https://gestion-bail-frontend.onrender.com",
+        "https://gestion-bail-backend.onrender.com"
+      ],
+
       frameAncestors: ["'self'"],
+
       objectSrc: ["'none'"],
     },
   })
@@ -72,10 +90,7 @@ app.use(
 // ===============================
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://gestion-bail-frontend.onrender.com",
-    ],
+    origin: true,
     credentials: true,
   })
 );
