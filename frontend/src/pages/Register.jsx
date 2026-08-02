@@ -26,6 +26,7 @@ function Register() {
 
  const handleSubmit = async (e) => {
   e.preventDefault();
+
   setMessage("");
   setSuccess(false);
   setLoading(true);
@@ -33,26 +34,52 @@ function Register() {
   try {
     const API = import.meta.env.VITE_API_URL;
 
+    if (!API) {
+      throw new Error("VITE_API_URL n'est pas configurée");
+    }
+
+    console.log("API :", API);
+    console.log("Données :", formData);
+
     const response = await axios.post(
       `${API}/auth/register`,
-      formData
+      formData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        timeout: 30000, // 30 secondes (Render peut être lent)
+      }
     );
 
+    console.log("Réponse :", response.data);
+
     setSuccess(true);
-    setMessage(
-      response.data.message || "Compte créé avec succès !"
-    );
+    setMessage(response.data.message || "Compte créé avec succès");
 
     setTimeout(() => {
       navigate("/login");
     }, 2000);
 
   } catch (error) {
+    console.error("Erreur complète :", error);
+
+    if (error.response) {
+      console.log("Status :", error.response.status);
+      console.log("Data :", error.response.data);
+
+      setMessage(
+        error.response.data.message ||
+        JSON.stringify(error.response.data)
+      );
+    } else if (error.request) {
+      setMessage("Le serveur ne répond pas.");
+    } else {
+      setMessage(error.message);
+    }
+
     setSuccess(false);
-    setMessage(
-      error.response?.data?.message ||
-      "Une erreur est survenue lors de la création du compte."
-    );
+
   } finally {
     setLoading(false);
   }

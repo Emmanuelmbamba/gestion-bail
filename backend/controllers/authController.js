@@ -47,11 +47,8 @@ exports.register = async (req, res) => {
       await envoyerEmail(
         email,
         "Confirmation de votre compte",
-        `Bonjour ${nom},
-
-Merci pour votre inscription.
-
-Veuillez confirmer votre compte en cliquant sur le lien suivant :
+        `Bonjour ${nom}, Merci pour votre inscription.
+        Veuillez confirmer votre compte en cliquant sur le lien suivant :
 
 ${urlConfirmation}
 `
