@@ -53,19 +53,23 @@ exports.register = async (req, res) => {
     const urlConfirmation = `https://gestion-bail.onrender.com/api/auth/verify/${token}`;
 
     try {
-      await envoyerEmail(
-        email,
-        "Confirmation de votre compte",
-        `Bonjour ${nom}, Merci pour votre inscription.
-        Veuillez confirmer votre compte en cliquant sur le lien suivant :
+  await envoyerEmail(
+    email,
+    "Confirmation de votre compte",
+    `Bonjour ${nom},
 
+Merci pour votre inscription.
+
+Veuillez confirmer votre compte :
 ${urlConfirmation}
 `
-      );
-    } catch (emailError) {
-      console.log(emailError.message);
-    }
-    
+  );
+
+  console.log("✅ Email envoyé à :", email);
+
+} catch (emailError) {
+  console.log("❌ ERREUR EMAIL :", emailError);
+}
 
     return res.status(201).json({
   message: "Compte créé. Vérifiez votre email pour activer votre compte.",
