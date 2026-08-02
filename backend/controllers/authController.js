@@ -10,7 +10,14 @@ const envoyerEmail = require("../services/emailService");
 // ======================
 // REGISTER
 // ======================
+    
+// ======================
+// REGISTER
+// ======================
 exports.register = async (req, res) => {
+  console.log("=== REGISTER ===");
+  console.log("Body reçu :", req.body);
+
   try {
     console.log("Données reçues :", req.body);
 
@@ -23,6 +30,8 @@ exports.register = async (req, res) => {
         message: "Email déjà utilisé",
       });
     }
+
+    // ... le reste de ton code 
 
     const hashPassword = await bcrypt.hash(password, 10);
 

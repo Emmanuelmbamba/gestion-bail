@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { FaBuilding, FaUser, FaEnvelope, FaLock, FaUserTag, FaUserPlus, FaArrowLeft } from "react-icons/fa";
 
+
+
 function Register() {
   const navigate = useNavigate();
 
