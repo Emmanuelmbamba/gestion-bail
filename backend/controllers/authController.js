@@ -11,24 +11,23 @@ const envoyerEmail = require("../services/emailService");
 // REGISTER
 
 exports.register = async (req, res) => {
+  try {
+    console.log("Données reçues :", req.body);
 
-    try {
+    const { nom, email, password, role } = req.body;
 
-        const {
-            nom,
-            email,
-            password,
-            role
-        } = req.body;
+    const existe = await User.findOne({ email });
 
+    if (existe) {
+      console.log("Email déjà utilisé :", email);
 
-        const existe = await User.findOne({email});
+      return res.status(400).json({
+        message: "Email déjà utilisé",
+      });
+    }
 
-        if(existe){
-            return res.status(400).json({
-                message:"Email déjà utilisé"
-            });
-        }
+   
+    // ... le reste de votre code
 
 
         const hashPassword = await bcrypt.hash(password,10);
@@ -47,7 +46,7 @@ exports.register = async (req, res) => {
         });
 
         // Envoi de l'e-mail de confirmation
-        const urlConfirmation = `http://localhost:5000/api/auth/verify/${token}`;
+        const urlConfirmation = `https://gestion-bail.onrender.com/api/auth/verify/${token}`;
         try {
             await envoyerEmail(
                 email,
@@ -294,8 +293,8 @@ exports.verifyEmail = async (req, res) => {
         user.verificationToken = null;
         await user.save();
 
-        res.redirect("http://localhost:5173/login?verified=true");
+        res.redirect("https://gestion-bail-frontend.onrender.com/login?verified=true");
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-};
+};
