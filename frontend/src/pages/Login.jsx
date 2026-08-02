@@ -23,29 +23,41 @@ function Login() {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("");
-    setLoading(true);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setMessage("");
+  setLoading(true);
 
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        formData
-      );
+  try {
+    const API = import.meta.env.VITE_API_URL;
 
-      const { token, user } = response.data;
-      localStorage.setItem("token", token);
-      setUser(user);
-      navigate("/dashboard");
-    } catch (error) {
-      setMessage(
-        error.response?.data?.message || "Erreur de connexion. Veuillez vérifier vos identifiants."
-      );
-    } finally {
-      setLoading(false);
+    if (!API) {
+      throw new Error("VITE_API_URL n'est pas définie.");
     }
-  };
+
+    const response = await axios.post(
+      `${API}/auth/login`,
+      formData
+    );
+
+    const { token, user } = response.data;
+
+    localStorage.setItem("token", token);
+    setUser(user);
+
+    navigate("/dashboard");
+  } catch (error) {
+    console.error(error);
+
+    setMessage(
+      error.response?.data?.message ||
+      error.message ||
+      "Erreur de connexion. Veuillez vérifier vos identifiants."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     

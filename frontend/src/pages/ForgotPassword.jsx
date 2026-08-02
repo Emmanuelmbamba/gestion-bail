@@ -10,20 +10,30 @@ function ForgotPassword() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("");
-    setError("");
-    setLoading(true);
+  e.preventDefault();
 
-    try {
-      const response = await axios.post("http://localhost:5000/api/auth/forgot-password", { email });
-      setMessage(response.data.message || "E-mail envoyé avec succès.");
-    } catch (err) {
-      setError(err.response?.data?.message || "Une erreur est survenue lors de la demande.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  setMessage("");
+  setError("");
+  setLoading(true);
+
+  try {
+    const API = import.meta.env.VITE_API_URL;
+
+    const response = await axios.post(
+      `${API}/auth/forgot-password`,
+      { email }
+    );
+
+    setMessage(response.data.message);
+  } catch (error) {
+    setError(
+      error.response?.data?.message ||
+      "Une erreur est survenue."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-tr from-slate-900 via-indigo-950 to-blue-900 flex items-center justify-center p-4 relative overflow-hidden">

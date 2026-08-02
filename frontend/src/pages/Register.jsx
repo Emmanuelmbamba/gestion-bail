@@ -24,31 +24,39 @@ function Register() {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("");
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setMessage("");
+  setSuccess(false);
+  setLoading(true);
+
+  try {
+    const API = import.meta.env.VITE_API_URL;
+
+    const response = await axios.post(
+      `${API}/auth/register`,
+      formData
+    );
+
+    setSuccess(true);
+    setMessage(
+      response.data.message || "Compte créé avec succès !"
+    );
+
+    setTimeout(() => {
+      navigate("/login");
+    }, 2000);
+
+  } catch (error) {
     setSuccess(false);
-    setLoading(true);
-
-    try {
-     const response = await axios.post(
-  "https://gestion-bail.onrender.com/api/auth/register",
-  formData
-);
-
-      setSuccess(true);
-      setMessage(response.data.message || "Compte créé avec succès ! Redirection vers la page de connexion...");
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
-    } catch (error) {
-      setMessage(
-        error.response?.data?.message || "Une erreur est survenue lors de la création du compte."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    setMessage(
+      error.response?.data?.message ||
+      "Une erreur est survenue lors de la création du compte."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-tr from-slate-900 via-indigo-950 to-blue-900 flex items-center justify-center p-4 relative overflow-hidden">
