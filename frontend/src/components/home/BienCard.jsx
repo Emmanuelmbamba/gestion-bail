@@ -11,11 +11,15 @@ export default function BienCard({ bien }) {
       {/* Photo Section with Zoom Effect */}
       <div className="h-44 sm:h-48 bg-slate-100 relative overflow-hidden">
         {firstPhoto ? (
-          <img
-            src={firstPhoto.startsWith("http") ? firstPhoto : `http://localhost:5000${firstPhoto}`}
-            alt={bien.titre}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-          />
+         <img
+  src={
+    firstPhoto.startsWith("http")
+      ? firstPhoto
+      : `${import.meta.env.VITE_API_URL.replace("/api", "")}${firstPhoto}`
+  }
+  alt={bien.titre}
+  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+/>  
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-2 bg-slate-50">
             <FaBuilding className="text-5xl text-slate-300" />
