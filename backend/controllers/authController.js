@@ -46,6 +46,7 @@ exports.register = async (req, res) => {
         });
 
         // Envoi de l'e-mail de confirmation
+        /*
         const urlConfirmation = `https://gestion-bail.onrender.com/api/auth/verify/${token}`;
         try {
             await envoyerEmail(
@@ -75,7 +76,7 @@ exports.register = async (req, res) => {
 
 };
 
-
+*/
 
 
 // LOGIN
