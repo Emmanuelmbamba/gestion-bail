@@ -59,6 +59,12 @@ function Login() {
   }
 };
 
+if (!user.estConfirme) {
+  return res.status(403).json({
+    message: "Veuillez confirmer votre adresse e-mail."
+  });
+}
+
   return (
     
     <div className="min-h-screen bg-gradient-to-tr from-slate-900 via-indigo-950 to-blue-900 flex items-center justify-center p-4 relative overflow-hidden">

@@ -33,14 +33,14 @@ exports.register = async (req, res) => {
       email,
       password: hashPassword,
       role,
-      estConfirme: true, // remettre false quand l'email fonctionnera
+      estConfirme: false, // remettre false quand l'email fonctionnera
       verificationToken: token,
     });
 
     // ======================
     // Email désactivé temporairement
     // ======================
-    /*
+    
     const urlConfirmation = `https://gestion-bail.onrender.com/api/auth/verify/${token}`;
 
     try {
@@ -59,12 +59,16 @@ ${urlConfirmation}
     } catch (emailError) {
       console.log(emailError.message);
     }
-    */
+    
 
     return res.status(201).json({
-      message: "Compte créé avec succès.",
-      user,
-    });
+  message: "Compte créé. Vérifiez votre email pour activer votre compte.",
+  user: {
+    nom: user.nom,
+    email: user.email,
+    role: user.role
+  },
+});
 
   } catch (error) {
     console.error(error);
@@ -92,11 +96,11 @@ exports.login = async (req, res) => {
     }
 
     // Vérification email désactivée
-    // if (!user.estConfirme) {
-    //   return res.status(403).json({
-    //     message: "Veuillez confirmer votre adresse e-mail."
-    //   });
-    // }
+    if (!user.estConfirme) {
+    return res.status(403).json({
+    message: "Veuillez confirmer votre adresse e-mail."
+     });
+    }
 
     const valide = await bcrypt.compare(password, user.password);
 

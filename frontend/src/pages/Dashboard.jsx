@@ -1,187 +1,230 @@
-import { useEffect, useState, useContext } from "react";
-import Layout from "../components/layout/Layout";
-import StatCard from "../components/dashboard/StatCard";
-import api from "../api/axios";
+import { useState, useContext } from "react";
+import axios from "axios";
+import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import {
-  FaHome,
-  FaUsers,
-  FaFileContract,
-  FaMoneyBillWave,
-  FaHistory,
-  FaCalendarTimes,
-  FaExclamationTriangle
-} from "react-icons/fa";
+import { FaBuilding, FaEnvelope, FaLock, FaSignInAlt, FaArrowLeft } from "react-icons/fa";
 
-function Dashboard() {
-  const { user } = useContext(AuthContext);
-  const [stats, setStats] = useState({
-    biens: 0,
-    locataires: 0,
-    contrats: 0,
-    contratsActifs: 0,
-    contratsExpires: 0,
-    paiementsEnRetard: 0,
-    revenusMensuels: 0,
-    revenusAnnuels: 0,
-    revenus: 0
+function Login() {
+  const navigate = useNavigate();
+  const { setUser } = useContext(AuthContext);
+
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
   });
 
-  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await api.get("/dashboard");
-        console.log("Dashboard API :", response.data);
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
 
-        setStats({
-          biens: response.data.biens || 0,
-          locataires: response.data.locataires || 0,
-          contrats: response.data.contrats || 0,
-          contratsActifs: response.data.contratsActifs || 0,
-          contratsExpires: response.data.contratsExpires || 0,
-          paiementsEnRetard: response.data.paiementsEnRetard || 0,
-          revenusMensuels: response.data.revenusMensuels || 0,
-          revenusAnnuels: response.data.revenusAnnuels || 0,
-          revenus: response.data.revenus || 0
-        });
-      } catch (error) {
-        console.error("Erreur lors de la récupération des stats:", error);
-      } finally {
-        setLoading(false);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setMessage("");
+    setLoading(true);
+
+    try {
+      const API = import.meta.env.VITE_API_URL;
+
+      if (!API) {
+        throw new Error("VITE_API_URL n'est pas définie.");
       }
-    };
 
-    fetchStats();
-  }, []);
+      const response = await axios.post(
+        `${API}/auth/login`,
+        formData
+      );
 
-  const isLocataire = user?.role === "locataire";
-  const isBailleur = user?.role === "bailleur";
+      const { token, user } = response.data;
+
+      localStorage.setItem("token", token);
+
+      setUser(user);
+
+      navigate("/dashboard");
+
+    } catch (error) {
+      console.error(error);
+
+      setMessage(
+        error.response?.data?.message ||
+        error.message ||
+        "Erreur de connexion. Veuillez vérifier vos identifiants."
+      );
+
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   return (
-    <Layout>
-      <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
-          Tableau de bord
-        </h1>
-        <p className="text-slate-500 text-xs sm:text-sm mt-1">
-          {isLocataire 
-            ? "Aperçu en temps réel de vos locations, factures et paiements" 
-            : isBailleur 
-            ? "Aperçu en temps réel de vos investissements immobiliers et locataires" 
-            : "Aperçu en temps réel de votre parc immobilier"}
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-tr from-slate-900 via-indigo-950 to-blue-900 flex items-center justify-center p-4 relative overflow-hidden">
 
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+      <div className="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+
+      <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-20 pointer-events-none"></div>
+
+      <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-500 rounded-full blur-3xl opacity-20 pointer-events-none"></div>
+
+
+      <div className="relative bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100/50">
+
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 mb-6"
+        >
+          <FaArrowLeft />
+          Retour à l'accueil
+        </Link>
+
+
+        <div className="text-center mb-8">
+
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white mb-4 shadow-lg">
+            <FaBuilding className="text-3xl" />
+          </div>
+
+          <h1 className="text-2xl font-black text-slate-800">
+            Connexion
+          </h1>
+
+          <p className="text-slate-500 text-xs mt-1">
+            Gérez facilement vos contrats et paiements
+          </p>
+
         </div>
-      ) : (
-        <div className="space-y-8">
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {isLocataire ? (
-              <>
-                <StatCard
-                  title="Mes Contrats"
-                  value={stats.contrats}
-                  icon={<FaFileContract className="text-blue-600" />}
-                />
-                <StatCard
-                  title="Contrats Actifs"
-                  value={stats.contratsActifs}
-                  icon={<FaFileContract className="text-emerald-500" />}
-                />
-                <StatCard
-                  title="Contrats Expirés"
-                  value={stats.contratsExpires}
-                  icon={<FaCalendarTimes className="text-amber-500" />}
-                />
-                <StatCard
-                  title="Loyers en Retard"
-                  value={stats.paiementsEnRetard}
-                  icon={<FaHistory className="text-red-500 animate-pulse" />}
-                />
-              </>
+
+
+        {message && (
+          <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
+            {message}
+          </div>
+        )}
+
+
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+
+
+          <div>
+
+            <label className="block text-xs font-bold text-slate-700 uppercase mb-2">
+              Adresse Email
+            </label>
+
+
+            <div className="relative">
+
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                <FaEnvelope />
+              </span>
+
+
+              <input
+                type="email"
+                name="email"
+                required
+                placeholder="nom@exemple.com"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
+              />
+
+            </div>
+
+          </div>
+
+
+
+          <div>
+
+            <label className="block text-xs font-bold text-slate-700 uppercase mb-2">
+              Mot de passe
+            </label>
+
+
+            <div className="relative">
+
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                <FaLock />
+              </span>
+
+
+              <input
+                type="password"
+                name="password"
+                required
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
+              />
+
+            </div>
+
+          </div>
+
+
+
+          <div className="flex justify-end text-xs">
+
+            <Link
+              to="/forgot-password"
+              className="text-blue-600 hover:underline font-bold"
+            >
+              Mot de passe oublié ?
+            </Link>
+
+          </div>
+
+
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-sm disabled:opacity-50"
+          >
+
+            {loading ? (
+              "Connexion..."
             ) : (
               <>
-                <StatCard
-                  title="Biens Publiés"
-                  value={stats.biens}
-                  icon={<FaHome className="text-blue-600" />}
-                />
-                <StatCard
-                  title="Locataires"
-                  value={stats.locataires}
-                  icon={<FaUsers className="text-indigo-600" />}
-                />
-                <StatCard
-                  title="Contrats Actifs"
-                  value={stats.contratsActifs}
-                  icon={<FaFileContract className="text-emerald-500" />}
-                />
-                <StatCard
-                  title="Revenus Mensuels"
-                  value={`${Number(stats.revenusMensuels || 0).toLocaleString("fr-FR")} $`}
-                  icon={<FaMoneyBillWave className="text-emerald-600" />}
-                />
+                <FaSignInAlt /> Se connecter
               </>
             )}
-          </div>
 
-          {/* Alerts Panel */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-6">
-            <h2 className="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
-              <FaHistory className="text-blue-600 text-base" />
-              Alertes & Suivi d'activité
-            </h2>
+          </button>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Alert Contrats */}
-              <div className={`p-4 rounded-xl border flex items-center gap-3.5 ${
-                stats.contratsExpires > 0 
-                  ? "bg-amber-50 border-amber-200/60 text-amber-800" 
-                  : "bg-slate-50 border-slate-100 text-slate-600"
-              }`}>
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${
-                  stats.contratsExpires > 0 ? "bg-amber-100" : "bg-slate-100"
-                }`}>
-                  <FaCalendarTimes />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Contrats expirés</p>
-                  <p className="text-base font-extrabold mt-0.5">
-                    {stats.contratsExpires} {stats.contratsExpires > 1 ? "contrats" : "contrat"}
-                  </p>
-                </div>
-              </div>
 
-              {/* Alert Paiements */}
-              <div className={`p-4 rounded-xl border flex items-center gap-3.5 ${
-                stats.paiementsEnRetard > 0 
-                  ? "bg-red-50 border-red-200/60 text-red-800" 
-                  : "bg-slate-50 border-slate-100 text-slate-600"
-              }`}>
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${
-                  stats.paiementsEnRetard > 0 ? "bg-red-100 animate-pulse" : "bg-slate-100"
-                }`}>
-                  <FaExclamationTriangle />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Loyers en retard</p>
-                  <p className="text-base font-extrabold mt-0.5">
-                    {stats.paiementsEnRetard} {stats.paiementsEnRetard > 1 ? "factures impayées" : "facture impayée"}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+        </form>
+
+
+
+        <div className="mt-8 text-center text-xs text-slate-500">
+
+          Pas encore de compte ?{" "}
+
+          <Link
+            to="/register"
+            className="text-blue-600 hover:underline font-bold"
+          >
+            Créer un compte
+          </Link>
+
         </div>
-      )}
-    </Layout>
+
+
+      </div>
+
+    </div>
   );
 }
 
-export default Dashboard;
+export default Login;

@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema({
 
     estConfirme: {
         type: Boolean,
-        default: false
+        estConfirme: false,
     },
 
     verificationToken: {
