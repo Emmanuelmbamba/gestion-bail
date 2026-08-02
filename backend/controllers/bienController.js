@@ -13,7 +13,7 @@ exports.createBien = async (req, res) => {
         let images = [];
 
         if (req.files && req.files.length > 0) {
-            images = req.files.map(file => `/uploads/biens/${file.filename}`);
+            images = req.files.map(file => file.path);
         }
 
         const bien = new Bien({
