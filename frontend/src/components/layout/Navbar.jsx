@@ -2,9 +2,8 @@ import { useContext, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { FaHeart, FaSearch, FaHome, FaSignOutAlt, FaSignInAlt, FaUserPlus, FaLaptop, FaBars, FaTimes } from "react-icons/fa";
-import logo from "../../assets/logo-mktechbail.png";
+import logo from "../../assets/logo-mktechbail.png";  
 
-<img src={logo} alt="MKTech Bail" />
 function Navbar() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -24,12 +23,27 @@ function Navbar() {
     <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm transition-all duration-200">
       <div className="container mx-auto px-6 h-16 flex items-center justify-between">
         
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-          <span className="text-xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text flex items-center gap-1.5">
-            🏢 Gestion-Bail
-          </span>
-        </Link>
+       {/* Logo */}
+<Link
+  to="/"
+  className="flex items-center gap-3 hover:opacity-90 transition-opacity"
+>
+  <img
+    src={logo}
+    alt="MKTech Bail"
+    className="h-12 w-12 object-contain"
+  />
+
+  <div>
+    <h1 className="text-xl font-extrabold text-slate-800">
+      MKTech Bail
+    </h1>
+
+    <p className="text-xs text-slate-500">
+      Gestion immobilière
+    </p>
+  </div>
+</Link>
 
         {/* Navigation Links (Desktop) */}
         <div className="hidden md:flex items-center gap-6">
