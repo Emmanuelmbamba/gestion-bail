@@ -28,31 +28,17 @@ function Visites() {
     }
   };
 
- useEffect(() => {
-  let ignore = false;
-
-  async function loadVisites() {
+useEffect(() => {
+  const loadVisites = async () => {
     try {
       const res = await api.get("/visites");
-
-      if (!ignore) {
-        const data = res.data.visites || res.data;
-        setVisites(Array.isArray(data) ? data : []);
-      }
-    } catch (error) {
-      console.error(error);
+      setVisites(res.data);
     } finally {
-      if (!ignore) {
-        setLoading(false);
-      }
+      setLoading(false);
     }
-  }
+  };
 
   loadVisites();
-
-  return () => {
-    ignore = true;
-  };
 }, []);
   const changerStatut = async (id, statut) => {
     try {
