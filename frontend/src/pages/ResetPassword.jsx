@@ -1,18 +1,21 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useSearchParams, useParams, Link } from "react-router-dom";
 import { FaBuilding, FaLock, FaKey, FaArrowLeft } from "react-icons/fa";
 
 function ResetPassword() {
   const navigate = useNavigate();
-  const { token } = useParams();    
+
+  const { token: tokenParam } = useParams();
+  const [searchParams] = useSearchParams();
+
+  const token = searchParams.get("token") || tokenParam;
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   useEffect(() => {
     if (!token) {
       Promise.resolve().then(() => {

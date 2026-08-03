@@ -19,7 +19,7 @@ import Favoris from "./pages/Favoris";
 import Visites from "./pages/Visites";
 
 function App() {
-  return (
+  return (  
     <BrowserRouter>
       <Routes>
         <Route path="/visites" element={<Visites />} />
@@ -27,8 +27,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />}/>
-        <Route path="/dashboard" element={<Dashboard />} />
+
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/biens" element={<Biens />} />
         <Route path="/contrats" element={<Contrats />} />
         <Route path="/locataires" element={<Locataires />} />
@@ -36,7 +37,8 @@ function App() {
         <Route path="/factures" element={<Factures />} />
         <Route path="/paiements" element={<Paiements />} />
         <Route path="/notifications" element={<Notifications />} />
-
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/recherche" element={<Recherche />} />
         <Route path="/biens/:id" element={<DetailBien />} />
         <Route path="/favoris" element={<Favoris />} />
