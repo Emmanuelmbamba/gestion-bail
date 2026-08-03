@@ -28,10 +28,32 @@ function Visites() {
     }
   };
 
-  useEffect(() => {
-    chargerVisites();
-  }, []);
+ useEffect(() => {
+  let ignore = false;
 
+  async function loadVisites() {
+    try {
+      const res = await api.get("/visites");
+
+      if (!ignore) {
+        const data = res.data.visites || res.data;
+        setVisites(Array.isArray(data) ? data : []);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      if (!ignore) {
+        setLoading(false);
+      }
+    }
+  }
+
+  loadVisites();
+
+  return () => {
+    ignore = true;
+  };
+}, []);
   const changerStatut = async (id, statut) => {
     try {
       await api.put(`/visites/${id}`, { statut });

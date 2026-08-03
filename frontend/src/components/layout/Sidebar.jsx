@@ -112,7 +112,7 @@
               title="Fermer le menu"
             >
               <FaTimes className="text-lg" />
-            </button>
+            </button> 
           </div>
 
           {/* Sidebar NavLinks */}

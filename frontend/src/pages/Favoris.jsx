@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/layout/Navbar";
 import BienCard from "../components/home/BienCard";
 import api from "../api/axios";
+import Logo from "../components/common/Logo";
 
 export default function Favoris() {
   const [favoris, setFavoris] = useState([]);
@@ -65,7 +66,7 @@ export default function Favoris() {
         <div className="container mx-auto px-6 max-w-6xl flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="space-y-2 text-center md:text-left">
             <span className="text-lg font-black text-white bg-gradient-to-r from-blue-400 to-indigo-400 text-transparent bg-clip-text">
-              🏢 Gestion-Bail
+               <Logo size={50} />
             </span>
             <p className="text-xs text-slate-500">
               La solution intelligente pour les locataires et les bailleurs.

@@ -26,7 +26,7 @@ function Navbar() {
        {/* Logo */}
 <Link
   to="/"
-  className="flex items-center gap-3 hover:opacity-90 transition-opacity"
+  className="flex items-center gap-3 hover:opacity-90 transition"
 >
   <img
     src={logo}
@@ -34,14 +34,14 @@ function Navbar() {
     className="h-12 w-12 object-contain"
   />
 
-  <div>
-    <h1 className="text-xl font-extrabold text-slate-800">
+  <div className="flex flex-col leading-tight">
+    <span className="text-xl font-extrabold text-blue-700">
       MKTech Bail
-    </h1>
+    </span>
 
-    <p className="text-xs text-slate-500">
-      Gestion immobilière
-    </p>
+    <span className="text-[11px] text-slate-500">
+      Gestion Immobilière Intelligente
+    </span>
   </div>
 </Link>
 

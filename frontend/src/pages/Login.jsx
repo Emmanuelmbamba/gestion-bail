@@ -2,8 +2,8 @@
       import axios from "axios";
       import { useNavigate, Link } from "react-router-dom";
       import { AuthContext } from "../context/AuthContext";
-      import { FaBuilding, FaEnvelope, FaLock, FaSignInAlt, FaArrowLeft } from "react-icons/fa";
-
+      import { FaEnvelope, FaLock, FaSignInAlt, FaArrowLeft } from "react-icons/fa";
+      import Logo from "../components/common/Logo";
       function Login() {
         const navigate = useNavigate();
         const { setUser } = useContext(AuthContext);
@@ -80,12 +80,20 @@
               </Link>
 
               <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white mb-4 shadow-lg shadow-blue-500/20">
-                  <FaBuilding className="text-3xl" />
-                </div>
-                <h1 className="text-2xl font-black text-slate-800 tracking-tight">Connexion</h1>
-                <p className="text-slate-500 text-xs mt-1.5 font-medium">Gérez facilement vos contrats et paiements</p>
-              </div>
+
+  <div className="flex justify-center mb-4">
+    <Logo size={70} />
+  </div>
+
+  <h1 className="text-2xl font-black text-slate-800 tracking-tight">
+    Connexion
+  </h1>
+
+  <p className="text-slate-500 text-sm mt-2">
+    Bienvenue sur MKTech Bail
+  </p>
+
+</div>
 
               {message && (
                 <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">

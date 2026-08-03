@@ -3,6 +3,7 @@ import Hero from "../components/home/Hero";
 import PromoTicker from "../components/home/PromoTicker";
 import FeaturedBiens from "../components/home/FeaturedBiens";
 import { FaFileContract, FaRegBell, FaShieldAlt } from "react-icons/fa";
+import Logo from "../components/common/Logo";
 
 export default function Home() {
   return (
@@ -71,9 +72,7 @@ export default function Home() {
       <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
         <div className="container mx-auto px-6 max-w-6xl flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="space-y-2 text-center md:text-left">
-            <span className="text-lg font-black text-white bg-gradient-to-r from-blue-400 to-indigo-400 text-transparent bg-clip-text">
-              🏢 Gestion-Bail
-            </span>
+            <Logo size={60} />
             <p className="text-xs text-slate-500">
               La solution intelligente pour les locataires et les bailleurs.
             </p>

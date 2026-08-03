@@ -4,6 +4,7 @@ import Navbar from "../components/layout/Navbar";
 import Filter from "../components/immobilier/Filter";
 import BienCard from "../components/home/BienCard";
 import { searchBien } from "../api/bienApi";
+import Logo from "../components/common/Logo";
 
 export default function Recherche() {
   const location = useLocation();
@@ -84,15 +85,15 @@ export default function Recherche() {
 
       {/* Footer */}
       <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800 mt-16">
-        <div className="container mx-auto px-6 max-w-6xl flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="space-y-2 text-center md:text-left">
-            <span className="text-lg font-black text-white bg-gradient-to-r from-blue-400 to-indigo-400 text-transparent bg-clip-text">
-              🏢 Gestion-Bail
-            </span>
-            <p className="text-xs text-slate-500">
-              La solution intelligente pour les locataires et les bailleurs.
-            </p>
-          </div>
+              <div className="container mx-auto px-6 max-w-6xl flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className="space-y-2 text-center md:text-left">
+                  <span className="text-lg font-black text-white bg-gradient-to-r from-blue-400 to-indigo-400 text-transparent bg-clip-text">
+                     <Logo size={50} />
+                  </span>
+                  <p className="text-xs text-slate-500">
+                    La solution intelligente pour les locataires et les bailleurs.
+                  </p>
+                </div>
           
           <div className="flex flex-wrap justify-center gap-6 text-xs font-semibold text-slate-400">
             <a href="/" className="hover:text-white transition-colors">Accueil</a>
