@@ -5,9 +5,7 @@
   import Input from "../components/ui/Input";
   import { getBiens, createBien, deleteBien } from "../services/bienService";
   import { FaHome, FaPlus, FaMapMarkerAlt, FaBuilding, FaBed, FaDollarSign, FaTrash } from "react-icons/fa";
-const API_BASE_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api"
-).replace("/api", "");
+const API_BASE_URL = ( import.meta.env.VITE_API_URL || "http://localhost:5000/api").replace("/api", "");
 
   function Biens() {
     const [biens, setBiens] = useState([]);
@@ -15,15 +13,16 @@ const API_BASE_URL = (
     const [selectedFiles, setSelectedFiles] = useState([]);
 
     const [form, setForm] = useState({
-      titre: "",
-      adresse: "",
-      ville: "",
-      quartier: "",
-      type: "Maison",
-      chambres: "0",
-      prix: "",
-      statut: "Disponible"
-    });
+  titre: "",
+  adresse: "",
+  ville: "",
+  quartier: "",
+  type: "Maison",
+  chambres: "0",
+  prix: "",
+  description: "",
+  statut: "Disponible"
+});
 
     const loadBiens = useCallback(async () => {
       try {
@@ -64,6 +63,7 @@ const API_BASE_URL = (
         formData.append("type", form.type);
         formData.append("chambres", Number(form.chambres || 0));
         formData.append("prix", Number(form.prix));
+        formData.append("description", form.description);
         formData.append("statut", form.statut);
 
         selectedFiles.forEach((file) => {
@@ -80,6 +80,7 @@ const API_BASE_URL = (
           type: "Maison",
           chambres: "0",
           prix: "",
+          decription: "",
           statut: "Disponible"
         });
         setSelectedFiles([]);
@@ -178,6 +179,7 @@ const API_BASE_URL = (
                       <option value="Boutique">Boutique</option>
                       <option value="Terrain">Terrain</option>
                     </select>
+                    
                   </div>
 
                   <div>
@@ -228,7 +230,20 @@ const API_BASE_URL = (
                     className="w-full border border-slate-200 rounded-lg px-3 py-2 bg-slate-50/50 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 text-sm"
                   />
                 </div>
+<div>
+  <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+    Description du bien
+  </label>
 
+  <textarea
+    name="description"
+    value={form.description}
+    onChange={handleChange}
+    placeholder="Décrivez le bien (nombre de chambres, emplacement, équipements...)"
+    rows="5"
+    className="w-full border border-slate-200 rounded-lg px-3 py-2 bg-slate-50/50 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+  />
+</div>
                 <Button type="submit" className="w-full flex justify-center gap-2 py-3 rounded-xl mt-6">
                   <FaPlus /> Ajouter le bien
                 </Button>

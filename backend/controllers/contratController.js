@@ -2,7 +2,7 @@ const genererContratPDF = require("../services/contratPDF");
 const Contrat = require("../models/Contrat");
 const { generateContractNumber, calculateDurationInMonths, getContractStatus } = require("../utils/contratUtils");
 const envoyerNotification = require("../services/notificationService");
-
+const Bien = require("../models/Bien");
 const creerContrat = async (req, res) => {
   try {
     let numeroContrat = req.body.numeroContrat;
@@ -87,6 +87,18 @@ const resilierContrat = async (req, res) => {
 
     contrat.statut = "resilie";
     await contrat.save();
+    const bien = await Bien.findById(
+  contrat.bien
+);
+
+
+if(bien){
+
+  bien.status="disponible";
+
+  await bien.save();
+
+}
 
     await envoyerNotification(contrat.locataire, "Contrat résilié", `Le contrat de bail ${contrat.numeroContrat} a été résilié par le bailleur.`, "contrat");
     await envoyerNotification(contrat.bailleur, "Contrat résilié", `Vous avez résilié le contrat de bail ${contrat.numeroContrat}.`, "contrat");
@@ -115,8 +127,36 @@ const signerContrat = async (req, res) => {
 
     // Si les deux parties ont signé, le contrat devient actif/expire selon ses dates
     if (contrat.signeBailleur && contrat.signeLocataire) {
-      contrat.statut = getContractStatus(contrat.dateDebut, contrat.dateFin);
+
+  contrat.statut = getContractStatus(
+    contrat.dateDebut,
+    contrat.dateFin
+  );
+
+
+  // Si le contrat est actif, le bien devient occupé
+  if (contrat.statut === "actif") {
+
+    const bien = await Bien.findById(
+      contrat.bien
+    );
+
+
+    if (bien) {
+
+      bien.status = "occupé";
+
+      await bien.save();
+
+      console.log(
+        `Bien ${bien._id} marqué comme occupé`
+      );
+
     }
+
+  }
+
+}
 
     await contrat.save();
 

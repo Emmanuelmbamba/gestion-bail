@@ -1,76 +1,65 @@
 const mongoose = require("mongoose");
 
+
 const contratSchema = new mongoose.Schema({
-    numeroContrat: {
-        type: String,
-        unique: true,
-        required: true
+
+    numeroContrat:{
+        type:String,
+        unique:true
     },
-    contratSigne: {
-        url: String,
-        public_id: String
+
+
+    bien:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Bien",
+        required:true
     },
-    bien: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Bien",
-        required: true
+
+
+    bailleur:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User"
     },
-    bailleur: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true
+
+
+    locataire:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User"
     },
-    locataire: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true
+
+
+    dateDebut:{
+        type:Date
     },
-    dateDebut: {
-        type: Date,
-        required: true
+
+
+    dateFin:{
+        type:Date
     },
-    dateFin: {
-        type: Date,
-        required: true
+
+
+    montantLoyer:{
+        type:Number
     },
-    dureeMois: {
-        type: Number,
-        default: 0
-    },
-    montantLoyer: {
-        type: Number,
-        required: true
-    },
-    caution: {
-        type: Number,
-        default: 0
-    },
-    conditions: {
-        type: String,
-        default: ""
-    },
-    signatureElectronique: {
-        type: Boolean,
-        default: false
-    },
-    signeBailleur: {
-        type: Boolean,
-        default: false
-    },
-    signeLocataire: {
-        type: Boolean,
-        default: false
-    },
-    statut: {
-        type: String,
-        enum: ["actif", "expire", "resilie", "en_attente"],
-        default: "en_attente"
-    },
-    contratPDF: {
-        type: String
+
+
+    statut:{
+        type:String,
+        enum:[
+            "en_attente",
+            "actif",
+            "expire",
+            "resilie"
+        ],
+        default:"en_attente"
     }
-}, {
-    timestamps: true
+
+},{
+    timestamps:true
 });
 
-module.exports = mongoose.model("Contrat", contratSchema);
+
+module.exports = mongoose.model(
+    "Contrat",
+    contratSchema
+);

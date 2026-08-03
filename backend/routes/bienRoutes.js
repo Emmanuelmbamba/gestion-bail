@@ -23,10 +23,9 @@ const upload = require("../middleware/uploadMiddleware");
 router.post(
 "/",
 auth,
-upload.array("images", 5),
+upload.array("photos",10),
 createBien
 );
-
 
 router.get(
 "/",

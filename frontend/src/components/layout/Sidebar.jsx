@@ -104,7 +104,7 @@ function Sidebar({ isOpen, onClose }) {
         {/* Header containing Brand Logo and Mobile Close Button */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-200 flex items-center gap-2">
-            🏢 Gestion-Bail
+             Gestion-Bail
           </h1>
           <button 
             onClick={onClose}

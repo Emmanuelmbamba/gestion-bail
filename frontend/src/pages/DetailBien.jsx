@@ -120,8 +120,9 @@ export default function DetailBien() {
                   </span>
                 )}
                 <span className="flex items-center gap-2 bg-white px-3.5 py-2 rounded-xl shadow-xs border border-slate-100">
-                  <span className="w-2.5 h-2.5 rounded-full bg-green-500 inline-block animate-pulse"></span>
-                  Statut : {bien.statut || "Disponible"}
+                  <span className={`w-2.5 h-2.5 rounded-full inline-block animate-pulse ${bien.status === "occupé"? "bg-red-500" : "bg-green-500" }`}
+></span>
+                  Statut : {bien.status || "disponible"}
                 </span>
               </div>
 
