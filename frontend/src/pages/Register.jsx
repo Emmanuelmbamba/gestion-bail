@@ -61,7 +61,7 @@ function Register() {
 
     setTimeout(() => {
       navigate("/login");
-    }, 2000);
+    }, 5000);
 
   } catch (error) {
     console.error("Erreur complète :", error);
