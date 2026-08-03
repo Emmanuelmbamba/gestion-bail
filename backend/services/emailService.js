@@ -2,6 +2,7 @@ const brevo = require("@getbrevo/brevo");
 
 const envoyerEmail = async (email, sujet, message) => {
   try {
+
     const apiInstance = new brevo.TransactionalEmailsApi();
 
     apiInstance.setApiKey(
@@ -28,9 +29,9 @@ const envoyerEmail = async (email, sujet, message) => {
     await apiInstance.sendTransacEmail(mail);
 
     console.log("✅ Email envoyé :", email);
+
   } catch (error) {
     console.error("❌ Erreur Brevo :", error);
-
     throw error;
   }
 };
