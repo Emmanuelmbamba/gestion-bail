@@ -23,6 +23,7 @@ router.get("/bailleurs", proteger, getBailleursUsers);
 
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
+router.post("/forgot-password", authController.forgotPassword   );
 
 router.delete("/delete-account", proteger, deleteAccount);
 

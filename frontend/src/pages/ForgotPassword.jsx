@@ -25,6 +25,10 @@ function ForgotPassword() {
     );
 
     setMessage(response.data.message);
+
+setTimeout(() => {
+  setMessage("");
+}, 10000);
   } catch (error) {
     setError(
       error.response?.data?.message ||
@@ -93,7 +97,7 @@ function ForgotPassword() {
                 <FaPaperPlane /> Envoyer la demande
               </>
             )}
-          </button>
+          </button> 
         </form>
 
         <div className="mt-8 text-center text-xs text-slate-500 font-semibold">

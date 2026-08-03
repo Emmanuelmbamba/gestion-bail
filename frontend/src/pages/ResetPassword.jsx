@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { FaBuilding, FaLock, FaKey, FaArrowLeft } from "react-icons/fa";
 
 function ResetPassword() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get("token");
+  const { token } = useParams();    
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -35,10 +34,13 @@ function ResetPassword() {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/reset-password", {
-        token,
-        password
-      });
+     const API = import.meta.env.VITE_API_URL;
+    const response = await axios.post(  `${API}/auth/reset-password`,
+  {
+    token,
+    password
+  }
+);
       setMessage(response.data.message || "Mot de passe modifié avec succès ! Redirection...");
       setTimeout(() => {
         navigate("/login");

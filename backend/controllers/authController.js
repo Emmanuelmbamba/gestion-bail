@@ -193,14 +193,38 @@ exports.forgotPassword = async (req, res) => {
     const token = crypto.randomBytes(20).toString("hex");
 
     user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 3600000;
+user.resetPasswordExpires = Date.now() + 3600000;
 
-    await user.save();
+await user.save();
 
-    res.json({
-      message: "Lien de réinitialisation généré.",
-      token,
-    });
+const resetUrl =`https://gestion-bail-frontend.onrender.com/reset-password/${token}`;
+
+try {
+  await envoyerEmail(
+  email,
+  "Réinitialisation du mot de passe",
+  `Bonjour ${user.nom},
+
+Vous avez demandé une modification de votre mot de passe.
+
+Cliquez sur ce lien pour créer un nouveau mot de passe :
+
+${resetUrl}
+
+Ce lien expire dans 1 heure.
+
+Gestion-Bail RDC`
+);
+
+  console.log("✅ Email reset envoyé à :", email);
+
+} catch (emailError) {
+  console.log("❌ Erreur envoi reset :", emailError);
+}
+
+res.json({
+  message: "Un lien de réinitialisation a été envoyé à votre adresse email.",
+});
 
   } catch (error) {
     res.status(500).json({
