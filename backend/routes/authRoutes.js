@@ -35,4 +35,5 @@ router.post("/reset-password", resetPassword);
 router.delete("/delete-account", proteger, deleteAccount);
 
 
+
 module.exports = router;
