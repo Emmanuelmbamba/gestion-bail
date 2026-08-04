@@ -75,12 +75,9 @@ element={<DetailBien />}
 
 
 
-
 {/* =====================
-   UTILISATEURS CONNECTÉS
-   ADMIN + BAILLEUR + LOCATAIRE
+ ADMIN + BAILLEUR + LOCATAIRE
 ===================== */}
-
 
 <Route
 element={
@@ -93,7 +90,6 @@ roles={[
 />
 }
 >
-
 
 <Route 
 path="/dashboard" 
@@ -130,45 +126,58 @@ path="/visites"
 element={<Visites />} 
 />
 
+</Route>
+
+
+
+{/* =====================
+ ADMIN + BAILLEUR
+===================== */}
+
+<Route
+element={
+<PrivateRoute
+roles={[
+"admin",
+"bailleur"
+]}
+/>
+}
+>
+
+<Route
+path="/biens"
+element={<Biens />}
+/>
 
 </Route>
 
 
 
-
 {/* =====================
-       ADMIN SEULEMENT
+ ADMIN SEULEMENT
 ===================== */}
-
 
 <Route
 element={<AdminRoute />}
 >
 
-
-<Route 
-path="/biens" 
-element={<Biens />} 
+<Route
+path="/locataires"
+element={<Locataires />}
 />
 
 
-<Route 
-path="/locataires" 
-element={<Locataires />} 
+<Route
+path="/bailleurs"
+element={<Bailleurs />}
 />
 
 
-<Route 
-path="/bailleurs" 
-element={<Bailleurs />} 
+<Route
+path="/notifications"
+element={<Notifications />}
 />
-
-
-<Route 
-path="/notifications" 
-element={<Notifications />} 
-/>
-
 
 </Route>
 
