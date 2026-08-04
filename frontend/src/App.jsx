@@ -1,13 +1,14 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 
-
-// Pages chargées normalement
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Home from "./pages/Home";
+
+import PrivateRoute from "./routes/PrivateRoute";
+import AdminRoute from "./components/auth/AdminRoute";
 
 
 // Lazy loading
@@ -25,39 +26,26 @@ const Favoris = lazy(() => import("./pages/Favoris"));
 const Visites = lazy(() => import("./pages/Visites"));
 
 
-// Protection routes
-import PrivateRoute from "./routes/PrivateRoute";
-import AdminRoute from "./components/auth/AdminRoute";
-
-
-
 function App() {
-
 
 return (
 
 <BrowserRouter>
 
-
 <Suspense
-
 fallback={
-
 <div className="flex justify-center items-center h-screen">
-
 Chargement...
-
 </div>
-
 }
-
 >
-
 
 <Routes>
 
 
-{/* Pages publiques */}
+{/* =====================
+      ROUTES PUBLIQUES
+===================== */}
 
 <Route path="/" element={<Home />} />
 
@@ -88,17 +76,46 @@ element={<DetailBien />}
 
 
 
+{/* =====================
+   UTILISATEURS CONNECTÉS
+   ADMIN + BAILLEUR + LOCATAIRE
+===================== */}
 
-{/* Routes protégées utilisateurs */}
 
-
-<Route element={<PrivateRoute />}>
-
+<Route
+element={
+<PrivateRoute
+roles={[
+"admin",
+"bailleur",
+"locataire"
+]}
+/>
+}
+>
 
 
 <Route 
 path="/dashboard" 
 element={<Dashboard />} 
+/>
+
+
+<Route 
+path="/contrats" 
+element={<Contrats />} 
+/>
+
+
+<Route 
+path="/paiements" 
+element={<Paiements />} 
+/>
+
+
+<Route 
+path="/factures" 
+element={<Factures />} 
 />
 
 
@@ -119,23 +136,19 @@ element={<Visites />}
 
 
 
+{/* =====================
+       ADMIN SEULEMENT
+===================== */}
 
-{/* Routes administrateur */}
 
-
-<Route element={<AdminRoute />}>
-
+<Route
+element={<AdminRoute />}
+>
 
 
 <Route 
 path="/biens" 
 element={<Biens />} 
-/>
-
-
-<Route 
-path="/contrats" 
-element={<Contrats />} 
 />
 
 
@@ -152,18 +165,6 @@ element={<Bailleurs />}
 
 
 <Route 
-path="/factures" 
-element={<Factures />} 
-/>
-
-
-<Route 
-path="/paiements" 
-element={<Paiements />} 
-/>
-
-
-<Route 
 path="/notifications" 
 element={<Notifications />} 
 />
@@ -173,18 +174,13 @@ element={<Notifications />}
 
 
 
-
 </Routes>
-
 
 </Suspense>
 
-
 </BrowserRouter>
 
-
 );
-
 
 }
 

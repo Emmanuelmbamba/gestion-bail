@@ -1,16 +1,23 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "API gestion immobilière MKTech Bail",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "gestion",
+    "immobilier",
+    "api",
+    "express",
+    "mongodb"
+  ],
+  "author": "MKTech SARL",
   "license": "ISC",
   "type": "commonjs",
+
   "dependencies": {
     "@getbrevo/brevo": "^6.0.2",
     "bcryptjs": "^3.0.3",
@@ -29,6 +36,7 @@
     "nodemailer": "^9.0.3",
     "pdfkit": "^0.19.1"
   },
+
   "devDependencies": {
     "nodemon": "^3.1.14"
   }

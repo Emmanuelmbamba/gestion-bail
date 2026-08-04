@@ -43,6 +43,44 @@ const contratSchema = new mongoose.Schema({
     },
 
 
+    dureeMois:{
+        type:Number
+    },
+
+
+    caution:{
+        type:Number
+    },
+
+
+    conditions:{
+        type:String
+    },
+
+
+    signatureElectronique:{
+        type:Boolean,
+        default:false
+    },
+
+
+    signeBailleur:{
+        type:Boolean,
+        default:false
+    },
+
+
+    signeLocataire:{
+        type:Boolean,
+        default:false
+    },
+
+
+    contratPDF:{
+        type:String
+    },
+
+
     statut:{
         type:String,
         enum:[

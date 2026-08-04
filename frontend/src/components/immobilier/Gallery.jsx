@@ -22,6 +22,7 @@ export default function Gallery({ images = [] }) {
   return (
     <div>
       <img
+        crossOrigin="anonymous"
         src={getImageUrl(currentImage)}
         alt="bien"
         className="w-full h-96 object-cover rounded-xl border border-slate-100"
@@ -30,6 +31,7 @@ export default function Gallery({ images = [] }) {
       <div className="grid grid-cols-4 gap-3 mt-4">
         {images.map((img, index) => (
           <img
+            crossOrigin="anonymous"
             key={index}
             src={getImageUrl(img)}
             alt={`Aperçu ${index + 1}`}

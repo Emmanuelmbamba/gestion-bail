@@ -192,7 +192,7 @@ function Contrats() {
               />
 
               <Input
-                label="Caution (€)"
+                label="Caution ($)"
                 name="caution"
                 type="number"
                 value={form.caution}

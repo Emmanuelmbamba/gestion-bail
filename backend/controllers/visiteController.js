@@ -54,8 +54,8 @@ exports.listeVisites = async (req, res) => {
 
             visites = toutesLesVisites.filter(visite => 
                 visite.bien && 
-                visite.bien.proprietaire && 
-                visite.bien.proprietaire.toString() === req.user.id
+                visite.bien.bailleur && 
+                visite.bien.bailleur.toString() === req.user.id
             );
 
         } else {
@@ -104,7 +104,7 @@ exports.modifierStatut = async (req, res) => {
         };
 
         const userIdStr = req.user && req.user.id ? req.user.id.toString() : "";
-        const isOwner = bien.proprietaire && getObjectIdString(bien.proprietaire) === userIdStr;
+        const isOwner = bien.bailleur && getObjectIdString(bien.bailleur) === userIdStr;
         const isAdminOrAgent = req.user && (req.user.role === "admin" || req.user.role === "agent");
         const isClient = visite.client && getObjectIdString(visite.client) === userIdStr;
 

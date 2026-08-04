@@ -1,11 +1,19 @@
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
+const path = require("path");
 
 const genererFacturePDF = (facture) => {
-  const chemin = `uploads/factures/${facture.numeroFacture}.pdf`;
+  const dossier = path.join(__dirname, "../uploads/factures");
+
+  if (!fs.existsSync(dossier)) {
+    fs.mkdirSync(dossier, { recursive: true });
+  }
+
+  const cheminAbsolu = path.join(dossier, `${facture.numeroFacture}.pdf`);
+  const cheminRelatif = `uploads/factures/${facture.numeroFacture}.pdf`;
   const doc = new PDFDocument({ margin: 50 });
 
-  doc.pipe(fs.createWriteStream(chemin));
+  doc.pipe(fs.createWriteStream(cheminAbsolu));
 
   // Colors & Styles
   const primaryColor = "#1e3a8a"; // Blue 800
@@ -112,7 +120,7 @@ const genererFacturePDF = (facture) => {
      .text(`Reçu édité automatiquement le ${dateStr}`, 70, doc.y, { align: "center", italic: true });
 
   doc.end();
-  return chemin;
+  return cheminRelatif;
 };
 
 module.exports = genererFacturePDF;

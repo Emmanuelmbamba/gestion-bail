@@ -62,6 +62,7 @@ export default function PromoTicker() {
                 <div className="w-12 h-12 md:w-14 md:h-14 rounded-lg overflow-hidden bg-slate-800 shrink-0 relative">
                   {photoUrl ? (
                     <img
+                      crossOrigin="anonymous"
                       src={photoUrl.startsWith("http") ? photoUrl : `http://localhost:5000${photoUrl}`}
                       alt={item.titre}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"

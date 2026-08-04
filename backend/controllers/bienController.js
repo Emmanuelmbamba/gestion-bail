@@ -45,7 +45,7 @@ exports.createBien = async (req, res) => {
 
             ...req.body,
 
-            photos,
+            images: photos,
 
             bailleur:req.user.id
 

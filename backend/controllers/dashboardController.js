@@ -39,7 +39,7 @@ exports.getStats = async (req, res) => {
       matchQueryMensuel.locataire = new mongoose.Types.ObjectId(userId);
       matchQueryAnnuel.locataire = new mongoose.Types.ObjectId(userId);
     } else if (role === "bailleur") {
-      biens = await Bien.countDocuments({ proprietaire: userId });
+      biens = await Bien.countDocuments({ bailleur: userId });
       
       const userContrats = await Contrat.find({ bailleur: userId }).select("_id locataire");
       const contratIds = userContrats.map(c => c._id);

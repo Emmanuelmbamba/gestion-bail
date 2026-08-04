@@ -12,6 +12,7 @@ export default function BienCard({ bien }) {
       <div className="h-44 sm:h-48 bg-slate-100 relative overflow-hidden">
         {firstPhoto ? (
          <img
+  crossOrigin="anonymous"
   src={
     firstPhoto.startsWith("http")
       ? firstPhoto

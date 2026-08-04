@@ -2,14 +2,19 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const helmet = require("helmet");
-require("dotenv").config();
 const dns = require("dns");
+
+require("dotenv").config();
 
 dns.setDefaultResultOrder("ipv4first");
 
 const connectDB = require("./config/database");
 
-// Import Routes
+
+// ===============================
+// IMPORT ROUTES
+// ===============================
+
 const authRoutes = require("./routes/authRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const bienRoutes = require("./routes/bienRoutes");
@@ -23,149 +28,392 @@ const favorieRoutes = require("./routes/favorieRoutes");
 const visiteRoutes = require("./routes/visiteRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 
+
+
 const app = express();
 
+
 // ===============================
-// Connexion MongoDB
+// CONNEXION DATABASE
 // ===============================
+
 connectDB();
 
+
+
 // ===============================
-// Sécurité Helmet
+// SECURITE HELMET
 // ===============================
+
 app.use(
-  helmet({
-    crossOriginResourcePolicy: {
-      policy: "cross-origin",
-    },
-    frameguard: {
-      action: "sameorigin",
-    },
-  })
+
+helmet({
+
+crossOriginResourcePolicy:{
+policy:"cross-origin"
+},
+
+frameguard:{
+action:"sameorigin"
+}
+
+})
+
 );
 
+
+
 // ===============================
-// Content Security Policy (CSP)
+// CORS
 // ===============================
+
+
+const allowedOrigins = [
+
+"http://localhost:5173",
+
+"https://gestion-bail-frontend.onrender.com"
+
+];
+
+
 app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'"],
 
-      scriptSrc: ["'self'"],
+cors({
 
-      styleSrc: [
-        "'self'",
-        "'unsafe-inline'"
-      ],
+origin:function(origin,callback){
 
-      imgSrc: [
-        "'self'",
-        "data:",
-        "https:"
-      ],
 
-      fontSrc: [
-        "'self'",
-        "https:"
-      ],
+if(!origin){
 
-      connectSrc: [
-        "'self'",
-        "http://localhost:5000",
-        "http://localhost:5173",
-        "https://gestion-bail-frontend.onrender.com",
-        "https://gestion-bail-backend.onrender.com"
-      ],
+return callback(null,true);
 
-      frameAncestors: ["'self'"],
+}
 
-      objectSrc: ["'none'"],
-    },
-  })
+
+if(allowedOrigins.includes(origin)){
+
+return callback(null,true);
+
+}
+
+
+return callback(
+new Error("Origine non autorisée")
 );
 
-// ===============================
-// Middlewares
-// ===============================
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  })
+
+},
+
+credentials:true
+
+})
+
 );
+
+
+
+// ===============================
+// BODY PARSER
+// ===============================
+
 
 app.use(express.json());
 
-// ===============================
-// Route principale
-// ===============================
-app.get("/", (req, res) => {
-  res.json({
-    status: "OK",
-    message: "API Gestion-Bail sécurisée",
-  });
-});
+app.use(express.urlencoded({
+extended:true
+}));
+
+
+
 
 // ===============================
-// Health Check pour Render
+// CSP
 // ===============================
-app.get("/healthz", (req, res) => {
-  res.status(200).json({
-    status: "OK",
-  });
-});
 
-// ===============================
-// Fichiers Upload
-// ===============================
+
 app.use(
-  "/uploads",
-  express.static(path.join(__dirname, "uploads"))
+
+helmet.contentSecurityPolicy({
+
+directives:{
+
+
+defaultSrc:[
+"'self'"
+],
+
+
+scriptSrc:[
+"'self'"
+],
+
+
+styleSrc:[
+"'self'",
+"'unsafe-inline'"
+],
+
+
+imgSrc:[
+"'self'",
+"data:",
+"https:"
+],
+
+
+fontSrc:[
+"'self'",
+"https:"
+],
+
+
+connectSrc:[
+
+"'self'",
+
+"http://localhost:5000",
+
+"http://localhost:5173",
+
+"https://*.onrender.com"
+
+],
+
+
+objectSrc:[
+"'none'"
+],
+
+
+frameAncestors:[
+"'self'"
+]
+
+
+}
+
+})
+
 );
 
-// ===============================
-// Routes API
-// ===============================
-app.use("/api/auth", authRoutes);
-app.use("/api/dashboard", dashboardRoutes);
-app.use("/api/biens", bienRoutes);
-app.use("/api/contrats", contratRoutes);
-app.use("/api/locataires", locataireRoutes);
-app.use("/api/bailleurs", bailleurRoutes);
-app.use("/api/factures", factureRoutes);
-app.use("/api/notifications", notificationRoutes);
-app.use("/api/paiements", paiementRoutes);
-app.use("/api/favoris", favorieRoutes);
-app.use("/api/visites", visiteRoutes);
-app.use("/api/contact", contactRoutes);
+
+
+
 
 // ===============================
-// Gestion erreurs 404
+// TEST API
 // ===============================
-app.use((req, res) => {
-  res.status(404).json({
-    message: "Route introuvable",
-  });
+
+
+app.get("/",(req,res)=>{
+
+
+res.json({
+
+status:"OK",
+
+message:"API Gestion-Bail opérationnelle"
+
 });
 
-// ===============================
-// Gestionnaire global des erreurs
-// ===============================
-app.use((err, req, res, next) => {
-  console.error(err);
 
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || "Erreur interne du serveur",
-  });
 });
 
-// ===============================
-// Démarrage serveur
-// ===============================
-const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`✅ Serveur lancé sur le port ${PORT}`);
+
+
+// ===============================
+// HEALTH CHECK RENDER
+// ===============================
+
+
+app.get("/healthz",(req,res)=>{
+
+
+res.status(200).json({
+
+status:"OK",
+
+service:"Gestion-Bail API",
+
+date:new Date()
+
+});
+
+
+});
+
+
+
+
+
+// ===============================
+// UPLOADS
+// ===============================
+
+
+app.use(
+
+"/uploads",
+
+express.static(
+
+path.join(__dirname,"uploads")
+
+)
+
+);
+
+
+
+
+
+// ===============================
+// API ROUTES
+// ===============================
+
+
+app.use(
+"/api/auth",
+authRoutes
+);
+
+
+app.use(
+"/api/dashboard",
+dashboardRoutes
+);
+
+
+app.use(
+"/api/biens",
+bienRoutes
+);
+
+
+app.use(
+"/api/contrats",
+contratRoutes
+);
+
+
+app.use(
+"/api/locataires",
+locataireRoutes
+);
+
+
+app.use(
+"/api/bailleurs",
+bailleurRoutes
+);
+
+
+app.use(
+"/api/factures",
+factureRoutes
+);
+
+
+app.use(
+"/api/notifications",
+notificationRoutes
+);
+
+
+app.use(
+"/api/paiements",
+paiementRoutes
+);
+
+
+app.use(
+"/api/favoris",
+favorieRoutes
+);
+
+
+app.use(
+"/api/visites",
+visiteRoutes
+);
+
+
+app.use(
+"/api/contact",
+contactRoutes
+);
+
+
+
+
+// ===============================
+// ERREUR 404
+// ===============================
+
+
+app.use((req,res)=>{
+
+
+res.status(404).json({
+
+success:false,
+
+message:"Route introuvable"
+
+});
+
+
+});
+
+
+
+
+// ===============================
+// ERREUR GLOBALE
+// ===============================
+
+
+app.use((err,req,res,next)=>{
+
+
+console.error(err);
+
+
+res.status(err.status || 500)
+.json({
+
+success:false,
+
+message:
+err.message ||
+"Erreur interne serveur"
+
+});
+
+
+});
+
+
+
+
+// ===============================
+// START SERVER RENDER
+// ===============================
+
+
+const PORT =
+process.env.PORT || 5000;
+
+
+
+app.listen(PORT,()=>{
+
+
+console.log(
+`✅ Serveur lancé sur le port ${PORT}`
+);
+
+
 });

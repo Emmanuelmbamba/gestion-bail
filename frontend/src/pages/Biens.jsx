@@ -80,7 +80,7 @@ const API_BASE_URL = ( import.meta.env.VITE_API_URL || "http://localhost:5000/ap
           type: "Maison",
           chambres: "0",
           prix: "",
-          decription: "",
+          description: "",
           statut: "Disponible"
         });
         setSelectedFiles([]);
@@ -277,6 +277,7 @@ const API_BASE_URL = ( import.meta.env.VITE_API_URL || "http://localhost:5000/ap
                         <div className="h-44 bg-slate-100 relative flex items-center justify-center text-slate-400 overflow-hidden">
                           {firstPhoto ? (
                             <img
+  crossOrigin="anonymous"
   src={
     firstPhoto
       ? firstPhoto.startsWith("http")
