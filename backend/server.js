@@ -272,7 +272,7 @@ path.join(__dirname,"uploads")
 // ===============================
 // API ROUTES
 // ===============================
-
+console.log("Auth routes chargées");
 
 app.use(
 "/api/auth",

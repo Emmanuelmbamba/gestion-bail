@@ -50,7 +50,7 @@ exports.register = async (req, res) => {
     // Email désactivé temporairement
     // ======================
     
-    const urlConfirmation = `https://gestion-bail-backend.onrender.com/api/auth/verify/${token}`;
+    const urlConfirmation = `https://gestion-bail.onrender.com/api/auth/verify/${token}`;
 
     try {
   await envoyerEmail(
@@ -321,7 +321,9 @@ exports.verifyEmail = async (req, res) => {
 
     await user.save();
 
-    res.redirect("https://gestion-bail-frontend.onrender.com/login?verified=true");
+    res.redirect(
+  `${process.env.FRONTEND_URL}/login?verified=true`
+);
 
   } catch (error) {
     res.status(500).json({
