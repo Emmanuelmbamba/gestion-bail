@@ -5,20 +5,10 @@ const envoyerEmail = async (email, sujet, message) => {
 
   try {
 
-    const defaultClient = SibApiV3Sdk.ApiClient.instance;
+    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
 
-    const apiKey = defaultClient.authentications["api-key"];
-
-    apiKey.apiKey = process.env.BREVO_API_KEY;
-
-
-    const apiInstance =
-      new SibApiV3Sdk.TransactionalEmailsApi();
-
-
-    const sendSmtpEmail =
-      new SibApiV3Sdk.SendSmtpEmail();
+    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
 
 
     sendSmtpEmail.subject = sujet;
@@ -40,15 +30,19 @@ const envoyerEmail = async (email, sujet, message) => {
     ];
 
 
+    const apiClient = SibApiV3Sdk.ApiClient.instance;
+
+
+    apiClient.authentications["api-key"].apiKey =
+      process.env.BREVO_API_KEY;
+
+
     await apiInstance.sendTransacEmail(
       sendSmtpEmail
     );
 
 
-    console.log(
-      "✅ Email envoyé :",
-      email
-    );
+    console.log("✅ Email envoyé :", email);
 
 
   } catch(error) {
