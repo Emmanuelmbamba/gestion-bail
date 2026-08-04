@@ -351,7 +351,10 @@ contactRoutes
 // ===============================
 // ERREUR 404
 // ===============================
-
+console.log(
+"BREVO KEY PRESENT:",
+process.env.BREVO_API_KEY ? "OUI" : "NON"
+);
 
 app.use((req,res)=>{
 
