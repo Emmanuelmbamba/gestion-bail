@@ -1,19 +1,22 @@
-const brevo = require("@getbrevo/brevo").default;
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 
 
 const envoyerEmail = async (email, sujet, message) => {
+
   try {
 
-    const apiInstance = new brevo.TransactionalEmailsApi();
+    const apiInstance =
+      new SibApiV3Sdk.TransactionalEmailsApi();
 
 
     apiInstance.setApiKey(
-      brevo.TransactionalEmailsApiApiKeys.apiKey,
+      SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey,
       process.env.BREVO_API_KEY
     );
 
 
-    const sendSmtpEmail = new brevo.SendSmtpEmail();
+    const sendSmtpEmail =
+      new SibApiV3Sdk.SendSmtpEmail();
 
 
     sendSmtpEmail.subject = sujet;
@@ -35,15 +38,19 @@ const envoyerEmail = async (email, sujet, message) => {
     ];
 
 
-    const response = await apiInstance.sendTransacEmail(
-      sendSmtpEmail
+    const result =
+      await apiInstance.sendTransacEmail(
+        sendSmtpEmail
+      );
+
+
+    console.log(
+      "✅ Email envoyé :",
+      email
     );
 
 
-    console.log("✅ Email envoyé :", email);
-
-
-    return response;
+    return result;
 
 
   } catch(error) {
@@ -56,6 +63,7 @@ const envoyerEmail = async (email, sujet, message) => {
     throw error;
 
   }
+
 };
 
 

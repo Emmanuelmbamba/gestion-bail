@@ -50,7 +50,7 @@ exports.register = async (req, res) => {
     // Email désactivé temporairement
     // ======================
     
-    const urlConfirmation = `https://gestion-bail.onrender.com/api/auth/verify/${token}`;
+const urlConfirmation = `${process.env.BACKEND_URL}/api/auth/verify/${token}`;
 
     try {
   await envoyerEmail(

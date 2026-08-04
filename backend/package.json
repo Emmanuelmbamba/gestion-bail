@@ -17,9 +17,7 @@
   "author": "MKTech SARL",
   "license": "ISC",
   "type": "commonjs",
-
   "dependencies": {
-    "@getbrevo/brevo": "^6.0.2",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
     "cookie-parser": "^1.4.7",
@@ -34,9 +32,9 @@
     "morgan": "^1.11.0",
     "multer": "^2.2.0",
     "nodemailer": "^9.0.3",
-    "pdfkit": "^0.19.1"
+    "pdfkit": "^0.19.1",
+    "sib-api-v3-sdk": "^8.5.0"
   },
-
   "devDependencies": {
     "nodemon": "^3.1.14"
   }
