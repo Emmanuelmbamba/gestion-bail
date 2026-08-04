@@ -5,7 +5,15 @@ const helmet = require("helmet");
 const dns = require("dns");
 
 require("dotenv").config();
+console.log(
+  "BREVO_API_KEY :",
+  process.env.BREVO_API_KEY ? "CONFIGUREE" : "MANQUANTE"
+);
 
+console.log(
+  "EMAIL_FROM :",
+  process.env.EMAIL_FROM
+);
 dns.setDefaultResultOrder("ipv4first");
 
 const connectDB = require("./config/database");

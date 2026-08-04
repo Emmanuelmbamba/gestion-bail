@@ -5,51 +5,63 @@ const envoyerEmail = async (email, sujet, message) => {
 
   try {
 
-    // Configuration clé API Brevo
-    const defaultClient = SibApiV3Sdk.ApiClient.instance;
+    if(!process.env.BREVO_API_KEY){
+      throw new Error("BREVO_API_KEY manquante");
+    }
 
-    defaultClient.authentications["api-key"].apiKey =
+
+    const client = SibApiV3Sdk.ApiClient.instance;
+
+
+    client.authentications["api-key"].apiKey =
       process.env.BREVO_API_KEY;
 
 
-    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+    const apiInstance =
+      new SibApiV3Sdk.TransactionalEmailsApi();
 
 
-    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+    const mail =
+      new SibApiV3Sdk.SendSmtpEmail();
 
 
-    sendSmtpEmail.sender = {
+    mail.sender = {
       name: "Gestion-Bail RDC",
       email: process.env.EMAIL_FROM
     };
 
 
-    sendSmtpEmail.to = [
+    mail.to = [
       {
         email: email
       }
     ];
 
 
-    sendSmtpEmail.subject = sujet;
+    mail.subject = sujet;
 
 
-    sendSmtpEmail.textContent = message;
+    mail.textContent = message;
 
 
-    const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    const response =
+      await apiInstance.sendTransacEmail(mail);
 
 
-    console.log("✅ Email envoyé :", email);
+    console.log(
+      "Email envoyé avec succès:",
+      email
+    );
 
-    return result;
+
+    return response;
 
 
-  } catch (error) {
+  } catch(error){
 
-    console.error(
-      "❌ Erreur Brevo :",
-      error.response?.body || error.message
+    console.log(
+      "Erreur Brevo:",
+      error.message
     );
 
     throw error;

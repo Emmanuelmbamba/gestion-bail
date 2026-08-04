@@ -57,11 +57,12 @@ function Register() {
     console.log("Réponse :", response.data);
 
     setSuccess(true);
-    setMessage(response.data.message || "Compte créé avec succès");
+    setMessage(  response.data.message ||  "Compte créé. Consultez votre boîte mail pour confirmer votre compte."
+);
 
     setTimeout(() => {
       navigate("/login");
-    }, 5000);
+    }, 8000);
 
   } catch (error) {
     console.error("Erreur complète :", error);
@@ -195,8 +196,6 @@ function Register() {
               >
                 <option value="locataire">Locataire</option>
                 <option value="bailleur">Bailleur</option>
-                <option value="agent">Agent</option>
-                <option value="admin">Administrateur</option>
               </select>
               <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
