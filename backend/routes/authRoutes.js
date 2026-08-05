@@ -1,39 +1,39 @@
-const express = require("express");
-const router = express.Router();
+    const express = require("express");
+    const router = express.Router();
 
-const proteger = require("../middleware/authMiddleware");
+    const proteger = require("../middleware/authMiddleware");
 
-const {
-    register,
-    login,
-    getLocataires,
-    getBailleursUsers,
-    forgotPassword,
-    resetPassword,
-    deleteAccount,
-    verifyEmail
-} = require("../controllers/authController");
-
-
-router.post("/register", register);
-
-router.post("/login", login);
-
-router.get("/verify/:token", verifyEmail);
+    const {
+        register,
+        login,
+        getLocataires,
+        getBailleursUsers,
+        forgotPassword,
+        resetPassword,
+        deleteAccount,
+        verifyEmail
+    } = require("../controllers/authController");
 
 
-router.get("/locataires", proteger, getLocataires);
+    router.post("/register", register);
 
-router.get("/bailleurs", proteger, getBailleursUsers);
+    router.post("/login", login);
 
-
-router.post("/forgot-password", forgotPassword);
-
-router.post("/reset-password", resetPassword);
+    router.get("/verify/:token", verifyEmail);
 
 
-router.delete("/delete-account", proteger, deleteAccount);
+    router.get("/locataires", proteger, getLocataires);
+
+    router.get("/bailleurs", proteger, getBailleursUsers);
+
+
+    router.post("/forgot-password", forgotPassword);
+
+    router.post("/reset-password", resetPassword);
+
+
+    router.delete("/delete-account", proteger, deleteAccount);
 
 
 
-module.exports = router;
+    module.exports = router;
