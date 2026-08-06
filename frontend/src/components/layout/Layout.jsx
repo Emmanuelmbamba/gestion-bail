@@ -13,25 +13,29 @@ function Layout({ children }) {
   }
 
   return (
-    <div className="flex bg-slate-50 min-h-screen text-slate-800 relative overflow-hidden">
-      {/* Sidebar Navigation */}
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      
-      {/* Backdrop overlay for mobile drawer */}
+    <div className="flex bg-slate-50 h-screen text-slate-800 relative">
+      {/* Sidebar */}
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+
+      {/* Overlay Mobile */}
       {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 md:hidden transition-opacity duration-300"
+        <div
+          className="fixed inset-0 bg-slate-900/40 z-40 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-        <main className="p-4 sm:p-6 flex-1 overflow-y-auto min-w-0">
-          {children}
-        </main>
-      </div>
+      {/* Contenu principal */}
+      <div className="flex-1 flex flex-col md:ml-64 h-screen">
+  <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+
+  <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+    {children}
+  </main>
+</div>
     </div>
   );
 }

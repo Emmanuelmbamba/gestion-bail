@@ -16,7 +16,7 @@ import {
 
 function Dashboard() {
   const { user } = useContext(AuthContext);
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState({    
     biens: 0,
     locataires: 0,
     contrats: 0,

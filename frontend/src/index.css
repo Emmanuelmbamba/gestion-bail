@@ -24,3 +24,17 @@ body{
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+.menuItem {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  border-radius:10px;
+  font-size:14px;
+  font-weight:600;
+  color:#334155;
+}
+
+.menuItem:hover {
+  background:#f1f5f9;
+}
