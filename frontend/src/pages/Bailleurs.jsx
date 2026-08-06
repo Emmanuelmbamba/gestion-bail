@@ -241,7 +241,8 @@ function Bailleurs() {
                 value={form.telephone}
                 onChange={handleChange}
                 required
-                placeholder="+243 000 000 000"
+                placeholder="+243 818 451 340"
+                placeholder="+243 997 300 932"
               />
 
               <Input

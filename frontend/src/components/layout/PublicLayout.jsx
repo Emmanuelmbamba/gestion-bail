@@ -47,10 +47,12 @@ export default function PublicLayout({ children }) {
               <li className="flex items-center gap-2">
                 <FaEnvelope className="text-blue-400" />
                 <span>support@gestionbail.com</span>
+                <span>emmanuel.mbamba87@gail.com</span>
               </li>
               <li className="flex items-center gap-2">
                 <FaPhoneAlt className="text-blue-400" />
-                <span>+243 000 000 000</span>
+                <span>+243 818 451 340</span>
+                <span>+243 997 300 932</span>
               </li>
               <li className="flex items-center gap-2">
                 <FaMapMarkerAlt className="text-blue-400" />
