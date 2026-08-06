@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import api from "../../api/axios";
 import { AuthContext } from "../../context/AuthContext";
+import { FaCalendarAlt, FaPaperPlane, FaCheckCircle, FaExclamationCircle, FaLock } from "react-icons/fa";
 
 export default function ReservationForm({ bienId }) {
   const { user } = useContext(AuthContext);
@@ -9,6 +10,8 @@ export default function ReservationForm({ bienId }) {
     dateVisite: "",
     message: ""
   });
+  const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState({ text: "", type: "" });
 
   const change = (e) => {
     setForm({
@@ -19,32 +22,48 @@ export default function ReservationForm({ bienId }) {
 
   const envoyer = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setStatusMessage({ text: "", type: "" });
+
     try {
       await api.post("/visites", {
         ...form,
         bien: bienId
       });
-      alert("Votre demande de visite a bien été envoyée avec succès !");
+      setStatusMessage({
+        text: "Votre demande de visite a bien été transmise au propriétaire !",
+        type: "success"
+      });
       setForm({
         dateVisite: "",
         message: ""
       });
     } catch (error) {
       console.error("Erreur envoi visite:", error);
-      alert(error.response?.data?.message || "Erreur lors de l'envoi de la demande de visite.");
+      setStatusMessage({
+        text: error.response?.data?.message || "Erreur lors de l'envoi de la demande.",
+        type: "error"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   if (!user) {
     return (
-      <div className="bg-white shadow-sm border border-slate-100 rounded-2xl p-6 text-center">
-        <h2 className="text-xl font-bold text-slate-800 mb-3">Planifier une visite 📅</h2>
-        <p className="text-slate-500 text-sm mb-5">
-          Vous devez avoir un compte et être connecté pour envoyer une demande de visite pour ce bien.
-        </p>
+      <div className="bg-white/80 backdrop-blur-md shadow-lg border border-slate-100 rounded-3xl p-6 text-center space-y-4">
+        <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-xl shadow-xs">
+          <FaLock />
+        </div>
+        <div>
+          <h3 className="text-lg font-extrabold text-slate-800">Planifier une visite</h3>
+          <p className="text-slate-500 text-xs mt-1 leading-relaxed">
+            Connectez-vous à votre compte pour planifier une visite guidée avec le propriétaire.
+          </p>
+        </div>
         <Link
           to="/login"
-          className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-center py-3 rounded-xl transition duration-150 text-sm shadow-sm"
+          className="block w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-center py-3 rounded-2xl shadow-md shadow-blue-500/20 transition-all text-xs uppercase tracking-wider"
         >
           Se connecter
         </Link>
@@ -53,49 +72,77 @@ export default function ReservationForm({ bienId }) {
   }
 
   return (
-    <form
-      onSubmit={envoyer}
-      className="bg-white shadow-sm border border-slate-100 rounded-2xl p-6 space-y-4"
-    >
-      <div>
-        <h2 className="text-xl font-bold text-slate-800">Planifier une visite 📅</h2>
-        <p className="text-slate-500 text-xs mt-1">Choisissez une date et envoyez un message au propriétaire</p>
+    <div className="bg-white shadow-xl shadow-slate-200/50 border border-slate-100 rounded-3xl p-6 space-y-5">
+      <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+        <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl text-lg">
+          <FaCalendarAlt />
+        </div>
+        <div>
+          <h3 className="text-lg font-extrabold text-slate-800">Planifier une visite</h3>
+          <p className="text-slate-400 text-xs">Directement avec le gestionnaire</p>
+        </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-          Date de visite souhaitée
-        </label>
-        <input
-          type="date"
-          name="dateVisite"
-          required
-          value={form.dateVisite}
-          className="w-full border border-slate-200 rounded-xl px-4 py-2.5 bg-slate-50/50 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 text-sm"
-          onChange={change}
-        />
-      </div>
+      {statusMessage.text && (
+        <div
+          className={`p-4 rounded-2xl text-xs font-semibold flex items-center gap-2.5 transition ${
+            statusMessage.type === "success"
+              ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+              : "bg-red-50 text-red-800 border border-red-200"
+          }`}
+        >
+          {statusMessage.type === "success" ? (
+            <FaCheckCircle className="text-emerald-600 text-base shrink-0" />
+          ) : (
+            <FaExclamationCircle className="text-red-600 text-base shrink-0" />
+          )}
+          <span>{statusMessage.text}</span>
+        </div>
+      )}
 
-      <div>
-        <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-          Message ou précision
-        </label>
-        <textarea
-          name="message"
-          placeholder="Bonjour, je souhaiterais visiter ce bien..."
-          value={form.message}
-          className="w-full border border-slate-200 rounded-xl px-4 py-2.5 bg-slate-50/50 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 text-sm"
-          rows="4"
-          onChange={change}
-        />
-      </div>
+      <form onSubmit={envoyer} className="space-y-4">
+        <div>
+          <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">
+            Date de visite souhaitée
+          </label>
+          <input
+            type="date"
+            name="dateVisite"
+            required
+            value={form.dateVisite}
+            className="w-full border border-slate-200 rounded-2xl px-4 py-3 bg-slate-50/50 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-xs font-semibold"
+            onChange={change}
+          />
+        </div>
 
-      <button
-        type="submit"
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-md shadow-blue-500/10 hover:shadow-blue-500/20 transition-all duration-200 text-sm cursor-pointer"
-      >
-        Envoyer la demande
-      </button>
-    </form>
+        <div>
+          <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">
+            Message ou précisions
+          </label>
+          <textarea
+            name="message"
+            placeholder="Bonjour, je souhaite visiter ce bien..."
+            value={form.message}
+            className="w-full border border-slate-200 rounded-2xl px-4 py-3 bg-slate-50/50 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-xs font-semibold"
+            rows="4"
+            onChange={change}
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold py-3.5 rounded-2xl shadow-lg shadow-blue-500/25 transition-all text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+        >
+          {loading ? (
+            "Envoi en cours..."
+          ) : (
+            <>
+              <FaPaperPlane /> Envoyer la demande
+            </>
+          )}
+        </button>
+      </form>
+    </div>
   );
 }
