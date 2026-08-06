@@ -3,7 +3,6 @@ import { useParams, Link } from "react-router-dom";
 import Gallery from "../components/immobilier/Gallery";
 import Map from "../components/immobilier/Map";
 import ReservationForm from "../components/immobilier/ReservationForm";
-import Navbar from "../components/layout/Navbar";
 import { getBienById } from "../api/bienApi";
 import {
   FaMapMarkerAlt,
@@ -19,8 +18,6 @@ import {
   FaCar,
   FaUserTie,
   FaEnvelope,
-  FaPhoneAlt,
-  FaShareAlt,
   FaHeart
 } from "react-icons/fa";
 
@@ -48,33 +45,27 @@ export default function DetailBien() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col">
-        <Navbar />
-        <div className="flex-1 flex flex-col justify-center items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-600 mb-4"></div>
-          <p className="text-slate-600 text-xs font-bold uppercase tracking-wider">
-            Chargement des détails du bien...
-          </p>
-        </div>
+      <div className="py-20 flex flex-col justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-600 mb-4"></div>
+        <p className="text-slate-600 text-xs font-bold uppercase tracking-wider">
+          Chargement des détails du bien...
+        </p>
       </div>
     );
   }
 
   if (error || !bien) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col">
-        <Navbar />
-        <div className="flex-1 container mx-auto p-6 flex flex-col items-center justify-center text-center">
-          <div className="bg-white p-8 rounded-3xl border border-red-100 shadow-xl max-w-md">
-            <h2 className="text-xl font-extrabold text-slate-800 mb-2">Bien introuvable</h2>
-            <p className="text-slate-500 text-xs mb-6">{error || "Ce bien immobilier n'est plus disponible."}</p>
-            <Link
-              to="/recherche"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs uppercase tracking-wider shadow-md transition"
-            >
-              <FaAngleLeft /> Retour à la recherche
-            </Link>
-          </div>
+      <div className="container mx-auto p-6 py-20 flex flex-col items-center justify-center text-center">
+        <div className="bg-white p-8 rounded-3xl border border-red-100 shadow-xl max-w-md">
+          <h2 className="text-xl font-extrabold text-slate-800 mb-2">Bien introuvable</h2>
+          <p className="text-slate-500 text-xs mb-6">{error || "Ce bien immobilier n'est plus disponible."}</p>
+          <Link
+            to="/recherche"
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs uppercase tracking-wider shadow-md transition"
+          >
+            <FaAngleLeft /> Retour à la recherche
+          </Link>
         </div>
       </div>
     );
@@ -83,10 +74,8 @@ export default function DetailBien() {
   const isDisponible = (bien.status || "disponible").toLowerCase() === "disponible";
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Navbar />
-
-      <main className="flex-1 container mx-auto px-4 sm:px-6 py-8 max-w-7xl">
+    <div className="py-6">
+      <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
         {/* Navigation & Breadcrumb */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 overflow-x-auto py-1">
@@ -311,30 +300,7 @@ export default function DetailBien() {
             </div>
           </div>
         </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-slate-900 text-slate-400 py-10 border-t border-slate-800 mt-16">
-        <div className="container mx-auto px-6 max-w-7xl flex flex-col md:flex-row justify-between items-center gap-6 text-xs">
-          <div className="space-y-1 text-center md:text-left">
-            <span className="text-lg font-black text-white bg-gradient-to-r from-blue-400 to-indigo-400 text-transparent bg-clip-text">
-              🏢 Gestion-Bail
-            </span>
-            <p className="text-slate-500">Plateforme immobilière de gestion locative sécurisée.</p>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-6 font-semibold text-slate-400">
-            <Link to="/" className="hover:text-white transition">Accueil</Link>
-            <Link to="/recherche" className="hover:text-white transition">Recherche</Link>
-            <Link to="/help" className="hover:text-white transition">Aide</Link>
-            <Link to="/contact" className="hover:text-white transition">Contact</Link>
-          </div>
-
-          <div className="text-center md:text-right text-[10px] text-slate-600">
-            &copy; {new Date().getFullYear()} Gestion-Bail. Tous droits réservés.
-          </div>
-        </div>
-      </footer>
+      </div>
     </div>
   );
 }
