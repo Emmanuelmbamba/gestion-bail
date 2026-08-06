@@ -27,6 +27,7 @@ const paiementRoutes = require("./routes/paiementRoutes");
 const favorieRoutes = require("./routes/favorieRoutes");
 const visiteRoutes = require("./routes/visiteRoutes");
 const contactRoutes = require("./routes/contactRoutes");
+const categorieRoutes = require("./routes/categorieRoutes");
 
 
 
@@ -342,6 +343,11 @@ favorieRoutes
 app.use(
 "/api/visites",
 visiteRoutes
+);
+
+app.use(
+"/api/categories",
+categorieRoutes
 );
 
 

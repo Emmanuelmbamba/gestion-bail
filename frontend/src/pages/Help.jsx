@@ -3,270 +3,83 @@ import {
   FaFileContract,
   FaMoneyBillWave,
   FaHome,
-  FaUserShield
+  FaUserShield,
+  FaArrowRight
 } from "react-icons/fa";
-
+import { Link } from "react-router-dom";
 
 export default function Help() {
-
-
   const sections = [
-
     {
       icon: <FaHome />,
       title: "Gestion des biens",
-      text:
-        "Ajoutez, modifiez et consultez facilement vos maisons, appartements, bureaux ou boutiques."
+      text: "Ajoutez, modifiez et consultez facilement vos maisons, appartements, bureaux ou boutiques avec photos et descriptions détaillées."
     },
-
     {
       icon: <FaFileContract />,
       title: "Contrats de bail",
-      text:
-        "Créez vos contrats, suivez leurs statuts et téléchargez vos documents PDF."
+      text: "Générez vos contrats officiels en quelques clics, suivez leurs dates d'échéance et téléchargez les documents PDF."
     },
-
     {
       icon: <FaMoneyBillWave />,
       title: "Paiements & factures",
-      text:
-        "Suivez les loyers, générez les factures et gardez un historique sécurisé."
+      text: "Enregistrez les loyers perçus, générez automatiquement les factures d'acompte ou de solde et éditez les quittances."
     },
-
     {
       icon: <FaUserShield />,
-      title: "Sécurité du compte",
-      text:
-        "Vos informations personnelles sont protégées grâce à notre système d'authentification."
+      title: "Sécurité & Accès",
+      text: "Chaque rôle (bailleur, locataire, administrateur) dispose d'espaces et de permissions adaptés et sécurisés."
     }
-
   ];
 
-
-
   return (
-
-    <main className="min-h-screen bg-slate-50 py-12 px-6">
-
-
-      <div className="max-w-6xl mx-auto">
-
-
-
-        {/* TITRE */}
-
-        <section className="text-center mb-12">
-
-
-          <FaQuestionCircle
-            className="
-            mx-auto
-            text-5xl
-            text-blue-600
-            mb-4
-            "
-          />
-
-
-          <h1
-            className="
-            text-3xl
-            font-extrabold
-            text-slate-800
-            "
-          >
-            Centre d'aide Gestion-Bail
-          </h1>
-
-
-
-          <p
-            className="
-            text-slate-500
-            mt-3
-            max-w-2xl
-            mx-auto
-            "
-          >
-            Retrouvez toutes les informations nécessaires pour
-            utiliser efficacement notre plateforme de gestion locative.
-          </p>
-
-
-        </section>
-
-
-
-
-
-        {/* SERVICES */}
-
-        <section
-          className="
-          grid
-          grid-cols-1
-          md:grid-cols-2
-          gap-6
-          "
-        >
-
-
-          {
-            sections.map((item,index)=>(
-
-
-              <div
-                key={index}
-                className="
-                bg-white
-                rounded-2xl
-                p-6
-                border
-                border-slate-100
-                shadow-sm
-                hover:shadow-lg
-                transition
-                "
-              >
-
-
-
-                <div
-                  className="
-                  w-12
-                  h-12
-                  rounded-xl
-                  bg-blue-50
-                  text-blue-600
-                  flex
-                  items-center
-                  justify-center
-                  text-xl
-                  mb-4
-                  "
-                >
-
-                  {item.icon}
-
-                </div>
-
-
-
-
-                <h2
-                  className="
-                  text-lg
-                  font-bold
-                  text-slate-800
-                  "
-                >
-
-                  {item.title}
-
-                </h2>
-
-
-
-
-                <p
-                  className="
-                  text-sm
-                  text-slate-500
-                  mt-2
-                  leading-relaxed
-                  "
-                >
-
-                  {item.text}
-
-                </p>
-
-
-
-              </div>
-
-
-            ))
-          }
-
-
-        </section>
-
-
-
-
-
-
-        {/* CONTACT */}
-
-        <section
-          className="
-          mt-12
-          bg-gradient-to-r
-          from-blue-600
-          to-indigo-700
-          rounded-2xl
-          p-8
-          text-center
-          text-white
-          "
-        >
-
-
-          <h2
-            className="
-            text-2xl
-            font-bold
-            "
-          >
-            Besoin d'une assistance ?
-          </h2>
-
-
-
-          <p
-            className="
-            mt-3
-            text-blue-100
-            "
-          >
-            Notre équipe est disponible pour répondre à vos questions.
-          </p>
-
-
-
-
-          <a
-            href="/contact"
-            className="
-            inline-block
-            mt-6
-            bg-white
-            text-blue-700
-            px-6
-            py-3
-            rounded-xl
-            font-bold
-            hover:bg-blue-50
-            transition
-            "
-          >
-
-            Nous contacter
-
-          </a>
-
-
-
-        </section>
-
-
-
+    <div className="py-12 px-4 sm:px-6 max-w-6xl mx-auto">
+      {/* HEADER */}
+      <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center text-3xl mx-auto mb-4 border border-blue-100/60 shadow-xs">
+          <FaQuestionCircle />
+        </div>
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+          Centre d'aide Gestion-Bail
+        </h1>
+        <p className="text-slate-600 text-sm sm:text-base mt-3 leading-relaxed">
+          Retrouvez toutes les informations et guides nécessaires pour maîtriser votre plateforme de gestion locative.
+        </p>
       </div>
 
+      {/* CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+        {sections.map((item, index) => (
+          <div
+            key={index}
+            className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
+          >
+            <div>
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl mb-5">
+                {item.icon}
+              </div>
+              <h2 className="text-xl font-bold text-slate-900">{item.title}</h2>
+              <p className="text-sm text-slate-500 mt-2 leading-relaxed">{item.text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
 
-    </main>
-
+      {/* CTA BANNER */}
+      <div className="mt-16 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 rounded-3xl p-8 sm:p-12 text-center text-white shadow-xl relative overflow-hidden">
+        <div className="relative z-10 max-w-2xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-extrabold">Une question spécifique ?</h2>
+          <p className="mt-3 text-blue-100 text-sm sm:text-base">
+            Notre équipe d'assistance est joignable pour vous guider à chaque étape.
+          </p>
+          <Link
+            to="/contact"
+            className="inline-flex items-center gap-2 mt-8 bg-white text-blue-700 px-8 py-3.5 rounded-2xl font-extrabold hover:bg-blue-50 shadow-md transition transform hover:-translate-y-0.5"
+          >
+            Nous contacter <FaArrowRight className="text-xs" />
+          </Link>
+        </div>
+      </div>
+    </div>
   );
-
 }

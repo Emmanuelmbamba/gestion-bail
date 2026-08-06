@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
@@ -13,29 +13,29 @@ function Layout({ children }) {
   }
 
   return (
-    <div className="flex bg-slate-50 h-screen text-slate-800 relative">
+    <div className="flex bg-slate-50 min-h-screen text-slate-800 relative font-sans">
       {/* Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
 
-      {/* Overlay Mobile */}
+      {/* Mobile Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/40 z-40 md:hidden"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-40 md:hidden transition-opacity"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Contenu principal */}
-      <div className="flex-1 flex flex-col md:ml-64 h-screen">
-  <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col md:ml-64 min-h-screen">
+        <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
-  <main className="flex-1 overflow-y-auto p-4 sm:p-6">
-    {children}
-  </main>
-</div>
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+          {children || <Outlet />}
+        </main>
+      </div>
     </div>
   );
 }

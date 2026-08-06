@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import Navbar from "../components/layout/Navbar";
+import Layout from "../components/layout/Layout";
 import BienCard from "../components/home/BienCard";
 import api from "../api/axios";
-import Logo from "../components/common/Logo";
+import { FaHeart } from "react-icons/fa";
 
 export default function Favoris() {
   const [favoris, setFavoris] = useState([]);
@@ -11,80 +11,46 @@ export default function Favoris() {
   const loadFavoris = async () => {
     try {
       const res = await api.get("/favoris");
-      setFavoris(res.data);
+      setFavoris(res.data || []);
     } catch (error) {
-      console.log(error);
+      console.error("Erreur chargement favoris:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    Promise.resolve().then(() => {
-      loadFavoris();
-    });
+    loadFavoris();
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-between">
-      <div>
-        <Navbar />
-        
-        <main className="container mx-auto px-6 py-10 max-w-6xl">
-          <div className="mb-8">
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
-              ❤️ Collection
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight mt-1">
-              Mes favoris
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Retrouvez l'ensemble des biens immobiliers que vous avez sauvegardés.
-            </p>
-          </div>
-
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600"></div>
-            </div>
-          ) : favoris.length === 0 ? (
-            <div className="text-center py-16 text-slate-400 bg-white border border-slate-100 rounded-2xl p-8">
-              Aucun bien immobilier ajouté aux favoris pour le moment.
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {favoris.map((item) => (
-                <BienCard key={item._id} bien={item.bien} />
-              ))}
-            </div>
-          )}
-        </main>
+    <Layout>
+      <div className="mb-8">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
+          <FaHeart className="text-red-500" /> Mes Biens Favoris
+        </h1>
+        <p className="text-slate-500 text-xs sm:text-sm mt-1">
+          Retrouvez l'ensemble des annonces immobilières que vous avez enregistrées.
+        </p>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800 mt-16">
-        <div className="container mx-auto px-6 max-w-6xl flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="space-y-2 text-center md:text-left">
-            <span className="text-lg font-black text-white bg-gradient-to-r from-blue-400 to-indigo-400 text-transparent bg-clip-text">
-               <Logo size={50} />
-            </span>
-            <p className="text-xs text-slate-500">
-              La solution intelligente pour les locataires et les bailleurs.
-            </p>
-          </div>
-          
-          <div className="flex flex-wrap justify-center gap-6 text-xs font-semibold text-slate-400">
-            <a href="/" className="hover:text-white transition-colors">Accueil</a>
-            <a href="/recherche" className="hover:text-white transition-colors">Rechercher</a>
-            <a href="/login" className="hover:text-white transition-colors">Connexion</a>
-            <a href="/register" className="hover:text-white transition-colors">Inscription</a>
-          </div>
-
-          <div className="text-center md:text-right text-[10px] text-slate-600">
-            &copy; {new Date().getFullYear()} Gestion-Bail. Tous droits réservés.
-          </div>
+      {loading ? (
+        <div className="flex justify-center items-center h-48">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600"></div>
         </div>
-      </footer>
-    </div>
+      ) : favoris.length === 0 ? (
+        <div className="text-center py-16 text-slate-400 bg-white border border-slate-100 rounded-3xl p-8 shadow-xs">
+          <FaHeart className="text-4xl text-slate-300 mx-auto mb-2" />
+          <p className="font-semibold text-slate-700">Aucun bien en favori</p>
+          <p className="text-xs text-slate-400 mt-1">Explorez les annonces et cliquez sur le cœur pour les conserver ici.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          {favoris.map((item) => (
+            <BienCard key={item._id} bien={item.bien} />
+          ))}
+        </div>
+      )}
+    </Layout>
   );
 }
