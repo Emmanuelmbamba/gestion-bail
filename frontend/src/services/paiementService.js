@@ -1,21 +1,14 @@
-// frontend/src/services/paiementService.js
-
 import api from "../api/axios";
 
 
-// Récupérer tous les paiements
-export const getPaiements = async () => {
 
-    const token = localStorage.getItem("token");
+// Liste paiements
 
-    const response = await api.get(
-        "/paiements",
-        {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        }
-    );
+export const getPaiements = async()=>{
+
+    const response =
+    await api.get("/paiements");
+
 
     return response.data;
 
@@ -24,23 +17,19 @@ export const getPaiements = async () => {
 
 
 
-// Créer un paiement
-export const createPaiement = async (data) => {
+// Création paiement
 
-    const token = localStorage.getItem("token");
+export const createPaiement = async(data)=>{
 
 
-    const response = await api.post(
+    const response =
+    await api.post(
         "/paiements",
-        data,
-        {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        }
+        data
     );
 
 
     return response.data;
+
 
 };

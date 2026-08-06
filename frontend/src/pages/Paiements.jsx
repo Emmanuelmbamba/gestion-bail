@@ -36,50 +36,93 @@ function Paiements() {
     }
   }, []);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+useEffect(() => {
 
+  const fetchData = async () => {
+    await loadData();
+  };
+
+  fetchData();
+
+}, [loadData]);
   const handleChange = (e) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value
     });
   };
+const handleContratSelect = (e) => {
 
-  const handleContratSelect = (e) => {
-    const contratId = e.target.value;
-    const contrat = contrats.find((c) => c._id === contratId);
-    setForm({
-      ...form,
-      contrat: contratId,
-      montant: contrat ? (contrat.montantLoyer || contrat.loyer || 0) : ""
-    });
-  };
+  const contratId = e.target.value;
 
-  const handleSubmit = async (e) => {
+  const contrat = contrats.find(
+    (c) => c._id === contratId
+  );
+
+
+  setForm((prev) => ({
+    ...prev,
+    contrat: contratId,
+    montant: contrat
+      ? (contrat.montantLoyer || contrat.loyer || "")
+      : ""
+  }));
+
+};
+ const handleSubmit = async (e) => {
+
     e.preventDefault();
-    setMessage({ text: "", type: "" });
+
+    setMessage({
+        text:"",
+        type:""
+    });
+
+
     try {
-      await createPaiement(form);
-      setForm({
-        contrat: "",
-        montant: "",
-        mois: "",
-        modePaiement: "cash",
-        typePaiement: "loyer",
-        statut: "payé"
-      });
-      await loadData();
-      setMessage({ text: "Paiement enregistré avec succès !", type: "success" });
-    } catch (error) {
-      console.error("Erreur création paiement:", error);
-      setMessage({
-        text: error.response?.data?.message || "Erreur lors de l'enregistrement du paiement",
-        type: "error"
-      });
+
+        await createPaiement({
+            contrat: form.contrat,
+            montant: form.montant,
+            mois: form.mois,
+            modePaiement: form.modePaiement,
+            typePaiement: form.typePaiement,
+            statut: form.statut
+        });
+
+
+        setMessage({
+            text:"Paiement enregistré avec succès !",
+            type:"success"
+        });
+
+
+        setForm({
+            contrat:"",
+            montant:"",
+            mois:"",
+            modePaiement:"cash",
+            typePaiement:"loyer",
+            statut:"payé"
+        });
+
+
+        await loadData();
+
+
+    } catch(error){
+
+        console.error(error);
+
+        setMessage({
+            text:
+            error.response?.data?.message || "Erreur paiement",
+            type:"error"
+        });
+
     }
-  };
+
+};
 
   return (
     <Layout>
