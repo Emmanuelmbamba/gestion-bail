@@ -35,8 +35,8 @@ const paiementSchema = new mongoose.Schema({
     },
     statut: {
         type: String,
-        enum: ["payé", "en_retard", "impayé"],
-        default: "payé"
+        enum: ["payé", "en_retard", "impayé", "en_attente"],
+        default: "en_attente"
     }
 }, {
     timestamps: true
