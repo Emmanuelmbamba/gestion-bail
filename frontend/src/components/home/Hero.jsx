@@ -10,7 +10,7 @@
 
         <div className="relative container mx-auto px-6 text-center max-w-4xl">
           <span className="inline-block px-3 py-1 mb-4 text-xs font-bold uppercase tracking-widest text-blue-400 bg-blue-500/10 rounded-full border border-blue-500/20">
-            🏡 Plateforme Immobilière Premium
+            Plateforme Immobilière Intelligente
           </span>
           
           <h1 className="text-3xl sm:text-4xl md:text-6xl font-black mb-6 tracking-tight leading-tight">

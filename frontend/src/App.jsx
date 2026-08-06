@@ -9,6 +9,10 @@ import Home from "./pages/Home";
 
 import PrivateRoute from "./routes/PrivateRoute";
 import AdminRoute from "./components/auth/AdminRoute";
+import Help from "./pages/Help";
+import Contact from "./pages/Contact";
+import PublicLayout from "./components/layout/PublicLayout";
+import Categories from "./pages/Categories";
 
 
 // Lazy loading
@@ -46,7 +50,9 @@ Chargement...
 {/* =====================
       ROUTES PUBLIQUES
 ===================== */}
-
+<Route element={<PublicLayout />}>        </Route>
+<Route path="/help" element={<Help />} />
+<Route path="/contact" element={<Contact />} />
 <Route path="/" element={<Home />} />
 
 <Route path="/login" element={<Login />} />
@@ -108,7 +114,10 @@ path="/paiements"
 element={<Paiements />} 
 />
 
-
+<Route 
+ path="/categories" 
+ element={<Categories />} 
+/>
 <Route 
 path="/factures" 
 element={<Factures />} 

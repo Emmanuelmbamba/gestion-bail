@@ -1,46 +1,68 @@
-const transporter = require("../config/email");
+const Contact = require("../models/Contact");
 
-exports.envoyerMessage = async (req, res) => {
-    try {
-        const { nom, email, sujet, message } = req.body;
 
-        if (!nom || !email || !sujet || !message) {
+
+// Envoyer un message contact
+
+exports.sendContact = async (req,res)=>{
+
+    try{
+
+
+        const {
+            nom,
+            email,
+            message
+        } = req.body;
+
+
+
+        if(!nom || !email || !message){
+
             return res.status(400).json({
-                message: "Tous les champs sont obligatoires."
+
+                message:"Tous les champs sont obligatoires"
+
             });
+
         }
 
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: process.env.EMAIL_USER,
-            replyTo: email,
-            subject: `📩 ${sujet}`,
-            html: `
-                <h2>Nouveau message de contact</h2>
 
-                <p><strong>Nom :</strong> ${nom}</p>
 
-                <p><strong>Email :</strong> ${email}</p>
+        const contact = await Contact.create({
 
-                <p><strong>Sujet :</strong> ${sujet}</p>
+            nom,
+            email,
+            message
 
-                <hr>
-
-                <p>${message}</p>
-            `
-        };
-
-        await transporter.sendMail(mailOptions);
-
-        res.status(200).json({
-            message: "Votre message a été envoyé avec succès."
         });
 
-    } catch (error) {
+
+
+        res.status(201).json({
+
+            success:true,
+            message:"Message envoyé avec succès",
+            contact
+
+        });
+
+
+
+    }catch(error){
+
+
         console.error(error);
 
+
         res.status(500).json({
-            message: "Erreur lors de l'envoi de l'email."
+
+            message:"Erreur serveur"
+
         });
+
+
     }
+
+
 };
