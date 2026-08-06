@@ -16,6 +16,7 @@ import Categories from "./pages/Categories";
 
 // Lazy loading
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Utilisateurs = lazy(() => import("./pages/Utilisateurs"));
 const Factures = lazy(() => import("./pages/Factures"));
 const Paiements = lazy(() => import("./pages/Paiements"));
 const Notifications = lazy(() => import("./pages/Notifications"));
@@ -80,6 +81,7 @@ function App() {
            ADMIN SEULEMENT
           ===================== */}
           <Route element={<AdminRoute />}>
+            <Route path="/utilisateurs" element={<Utilisateurs />} />
             <Route path="/bailleurs" element={<Bailleurs />} />
             <Route path="/notifications" element={<Notifications />} />
           </Route>

@@ -28,6 +28,7 @@ const favorieRoutes = require("./routes/favorieRoutes");
 const visiteRoutes = require("./routes/visiteRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 const categorieRoutes = require("./routes/categorieRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 
 
@@ -348,6 +349,11 @@ visiteRoutes
 app.use(
 "/api/categories",
 categorieRoutes
+);
+
+app.use(
+"/api/users",
+userRoutes
 );
 
 
