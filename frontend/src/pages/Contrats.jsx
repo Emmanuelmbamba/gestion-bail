@@ -18,6 +18,8 @@ function Contrats() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({ text: "", type: "" });
 
+  const isManagerRole = user?.role === "admin" || user?.role === "bailleur" || user?.role === "agent";
+
   const [form, setForm] = useState({
     bien: "",
     locataire: "",
@@ -33,10 +35,12 @@ function Contrats() {
     try {
       const contrs = await getContrats();
       setContrats(contrs || []);
-      const bList = await getBiens(true);
-      setBiens(bList || []);
-      const lList = await getLocataireUsers();
-      setLocataires(lList || []);
+      if (isManagerRole) {
+        const bList = await getBiens(true);
+        setBiens(bList || []);
+        const lList = await getLocataireUsers();
+        setLocataires(lList || []);
+      }
     } catch (error) {
       console.error("Erreur lors du chargement des contrats:", error);
     } finally {
@@ -132,7 +136,9 @@ function Contrats() {
           <FaFileContract className="text-blue-600" /> Contrats de Bail Officiels
         </h1>
         <p className="text-slate-500 text-xs sm:text-sm mt-1">
-          Générez, signez et téléchargez vos baux locatifs au format PDF.
+          {isManagerRole
+            ? "Générez, signez et téléchargez vos baux locatifs au format PDF."
+            : "Consultez, signez et téléchargez vos contrats de bail officiels."}
         </p>
       </div>
 
@@ -162,120 +168,122 @@ function Contrats() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Form */}
-        <div className="lg:col-span-1">
-          <Card title="Éditer un contrat" className="shadow-sm border border-slate-100 rounded-3xl">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-slate-700">Bien immobilier</label>
-                <select
-                  name="bien"
-                  value={form.bien}
-                  onChange={handleBienSelect}
-                  required
-                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-slate-50/50 text-slate-800 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
-                >
-                  <option value="">-- Sélectionner un bien --</option>
-                  {biens.map((b) => (
-                    <option key={b._id} value={b._id}>
-                      {b.titre} ({b.prix} $)
-                    </option>
-                  ))}
-                </select>
-              </div>
+        {/* Formulaire de création (Réservé aux Bailleurs / Admins / Agents) */}
+        {isManagerRole && (
+          <div className="lg:col-span-1">
+            <Card title="Générer un contrat" className="shadow-sm border border-slate-100 rounded-3xl">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-slate-700">Bien immobilier</label>
+                  <select
+                    name="bien"
+                    value={form.bien}
+                    onChange={handleBienSelect}
+                    required
+                    className="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-slate-50/50 text-slate-800 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                  >
+                    <option value="">-- Sélectionner un bien --</option>
+                    {biens.map((b) => (
+                      <option key={b._id} value={b._id}>
+                        {b.titre} ({b.prix} $)
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <div>
-                <label className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-slate-700">Locataire</label>
-                <select
-                  name="locataire"
-                  value={form.locataire}
-                  onChange={handleChange}
-                  required
-                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-slate-50/50 text-slate-800 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
-                >
-                  <option value="">-- Sélectionner un locataire --</option>
-                  {locataires.map((l) => (
-                    <option key={l._id} value={l._id}>
-                      {l.nom} ({l.email})
-                    </option>
-                  ))}
-                </select>
-              </div>
+                <div>
+                  <label className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-slate-700">Locataire</label>
+                  <select
+                    name="locataire"
+                    value={form.locataire}
+                    onChange={handleChange}
+                    required
+                    className="w-full border border-slate-200 rounded-xl px-3 py-2.5 bg-slate-50/50 text-slate-800 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                  >
+                    <option value="">-- Sélectionner un locataire --</option>
+                    {locataires.map((l) => (
+                      <option key={l._id} value={l._id}>
+                        {l.nom} ({l.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label="Date de début"
-                  name="dateDebut"
-                  type="date"
-                  value={form.dateDebut}
-                  onChange={handleChange}
-                  required
-                />
+                <div className="grid grid-cols-2 gap-4">
+                  <Input
+                    label="Date de début"
+                    name="dateDebut"
+                    type="date"
+                    value={form.dateDebut}
+                    onChange={handleChange}
+                    required
+                  />
 
-                <Input
-                  label="Date de fin"
-                  name="dateFin"
-                  type="date"
-                  value={form.dateFin}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
+                  <Input
+                    label="Date de fin"
+                    name="dateFin"
+                    type="date"
+                    value={form.dateFin}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label="Loyer ($)"
-                  name="montantLoyer"
-                  type="number"
-                  value={form.montantLoyer}
-                  onChange={handleChange}
-                  required
-                  placeholder="Loyer"
-                />
+                <div className="grid grid-cols-2 gap-4">
+                  <Input
+                    label="Loyer ($)"
+                    name="montantLoyer"
+                    type="number"
+                    value={form.montantLoyer}
+                    onChange={handleChange}
+                    required
+                    placeholder="Loyer"
+                  />
 
-                <Input
-                  label="Caution ($)"
-                  name="caution"
-                  type="number"
-                  value={form.caution}
-                  onChange={handleChange}
-                  placeholder="Caution"
-                />
-              </div>
+                  <Input
+                    label="Caution ($)"
+                    name="caution"
+                    type="number"
+                    value={form.caution}
+                    onChange={handleChange}
+                    placeholder="Caution"
+                  />
+                </div>
 
-              <div>
-                <label className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-slate-700">Conditions particulières</label>
-                <textarea
-                  name="conditions"
-                  value={form.conditions}
-                  onChange={handleChange}
-                  rows="3"
-                  className="w-full border border-slate-200 rounded-xl px-3 py-2 bg-slate-50/50 text-slate-800 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
-                  placeholder="Précisez les clauses et charges incluses..."
-                />
-              </div>
+                <div>
+                  <label className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-slate-700">Conditions particulières</label>
+                  <textarea
+                    name="conditions"
+                    value={form.conditions}
+                    onChange={handleChange}
+                    rows="3"
+                    className="w-full border border-slate-200 rounded-xl px-3 py-2 bg-slate-50/50 text-slate-800 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                    placeholder="Précisez les clauses et charges incluses..."
+                  />
+                </div>
 
-              <label className="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer pt-1">
-                <input
-                  type="checkbox"
-                  name="signatureElectronique"
-                  checked={form.signatureElectronique}
-                  onChange={(e) => setForm({ ...form, signatureElectronique: e.target.checked })}
-                  className="rounded text-blue-600 focus:ring-blue-500"
-                />
-                Activer la signature électronique
-              </label>
+                <label className="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer pt-1">
+                  <input
+                    type="checkbox"
+                    name="signatureElectronique"
+                    checked={form.signatureElectronique}
+                    onChange={(e) => setForm({ ...form, signatureElectronique: e.target.checked })}
+                    className="rounded text-blue-600 focus:ring-blue-500"
+                  />
+                  Activer la signature électronique
+                </label>
 
-              <Button type="submit" variant="primary" className="w-full py-3 rounded-2xl flex items-center justify-center gap-2 font-bold mt-2">
-                <FaPlus /> Générer le contrat
-              </Button>
-            </form>
-          </Card>
-        </div>
+                <Button type="submit" variant="primary" className="w-full py-3 rounded-2xl flex items-center justify-center gap-2 font-bold mt-2">
+                  <FaPlus /> Générer le contrat
+                </Button>
+              </form>
+            </Card>
+          </div>
+        )}
 
-        {/* List */}
-        <div className="lg:col-span-2">
-          <Card title="Repertoire des contrats" className="shadow-sm border border-slate-100 rounded-3xl">
+        {/* Liste des contrats */}
+        <div className={isManagerRole ? "lg:col-span-2" : "lg:col-span-3"}>
+          <Card title="Répertoire de vos contrats" className="shadow-sm border border-slate-100 rounded-3xl">
             {loading ? (
               <div className="flex justify-center items-center h-48">
                 <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600"></div>
@@ -283,8 +291,12 @@ function Contrats() {
             ) : contrats.length === 0 ? (
               <div className="text-center py-16 text-slate-400">
                 <FaFileContract className="text-4xl text-slate-300 mx-auto mb-2" />
-                <p className="font-semibold text-slate-600">Aucun contrat enregistré</p>
-                <p className="text-xs text-slate-400 mt-1">Utilisez le formulaire pour créer votre premier bail.</p>
+                <p className="font-semibold text-slate-600">Aucun contrat disponible</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  {isManagerRole
+                    ? "Utilisez le formulaire pour générer votre premier bail."
+                    : "Votre propriétaire établira votre contrat de bail ici."}
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -363,7 +375,7 @@ function Contrats() {
                         </button>
                       )}
 
-                      {c.statut === "actif" && (user?.role === "bailleur" || user?.role === "admin" || user?.role === "agent") && (
+                      {c.statut === "actif" && isManagerRole && (
                         <button
                           onClick={() => handleResilier(c._id)}
                           className="w-full sm:w-auto px-4 py-2.5 text-red-600 hover:text-white rounded-xl bg-red-50 hover:bg-red-600 border border-red-100 hover:border-red-600 font-bold text-xs transition duration-150 flex items-center justify-center gap-1 cursor-pointer shadow-xs"
