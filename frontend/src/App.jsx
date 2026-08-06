@@ -67,6 +67,7 @@ function App() {
             <Route path="/factures" element={<Factures />} />
             <Route path="/favoris" element={<Favoris />} />
             <Route path="/visites" element={<Visites />} />
+            <Route path="/notifications" element={<Notifications />} />
           </Route>
 
           {/* =====================
@@ -83,7 +84,6 @@ function App() {
           <Route element={<AdminRoute />}>
             <Route path="/utilisateurs" element={<Utilisateurs />} />
             <Route path="/bailleurs" element={<Bailleurs />} />
-            <Route path="/notifications" element={<Notifications />} />
           </Route>
         </Routes>
       </Suspense>
