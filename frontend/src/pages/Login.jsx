@@ -1,5 +1,5 @@
       import { useState, useContext } from "react";
-      import axios from "axios";
+      import api from "../api/axios";
       import { useNavigate, Link } from "react-router-dom";
       import { AuthContext } from "../context/AuthContext";
       import { FaEnvelope, FaLock, FaSignInAlt, FaArrowLeft } from "react-icons/fa";
@@ -29,16 +29,7 @@
         setLoading(true);
 
         try {
-          const API = import.meta.env.VITE_API_URL;
-
-          if (!API) {
-            throw new Error("VITE_API_URL n'est pas définie.");
-          }
-
-          const response = await axios.post(
-            `${API}/auth/login`,
-            formData
-          );
+         const response = await api.post("/auth/login",formData);
 
           const { token, user } = response.data;
 
