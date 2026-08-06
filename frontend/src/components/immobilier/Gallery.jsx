@@ -5,13 +5,19 @@ export default function Gallery({ images = [] }) {
   const [active, setActive] = useState(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
+  const fallbackImage = "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1000&q=80";
+
   const currentImage = active && images.includes(active) ? active : images[0];
 
   const getImageUrl = (path) => {
-    if (!path) return "/images/default-house.jpg";
-    if (path.startsWith("http")) return path;
+    if (!path || typeof path !== "string") return fallbackImage;
+    if (path.startsWith("http://") || path.startsWith("https://")) return path;
+
+    const apiBase = import.meta.env.VITE_API_URL || "https://gestion-bail-backend.onrender.com/api";
+    const serverUrl = apiBase.replace(/\/api\/?$/, "").replace(/\/$/, "");
+
     const cleanPath = path.startsWith("/") ? path : `/${path}`;
-    return `https://gestion-bail-backend.onrender.com${cleanPath}`;
+    return `${serverUrl}${cleanPath}`;
   };
 
   if (!images || !images.length) {
@@ -23,14 +29,19 @@ export default function Gallery({ images = [] }) {
     );
   }
 
+  const handleImageError = (e) => {
+    e.target.onerror = null;
+    e.target.src = fallbackImage;
+  };
+
   return (
     <div className="space-y-4">
       {/* Main Image Showcase */}
       <div className="relative group overflow-hidden rounded-3xl shadow-md border border-slate-100 bg-slate-900">
         <img
-          crossOrigin="anonymous"
           src={getImageUrl(currentImage)}
           alt="Vue principale du bien"
+          onError={handleImageError}
           className="w-full h-80 sm:h-[450px] object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
@@ -67,9 +78,9 @@ export default function Gallery({ images = [] }) {
               }`}
             >
               <img
-                crossOrigin="anonymous"
                 src={getImageUrl(img)}
                 alt={`Miniature ${index + 1}`}
+                onError={handleImageError}
                 className="w-full h-full object-cover"
               />
             </button>
@@ -87,9 +98,9 @@ export default function Gallery({ images = [] }) {
             ✕
           </button>
           <img
-            crossOrigin="anonymous"
             src={getImageUrl(currentImage)}
             alt="Plein écran"
+            onError={handleImageError}
             className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl"
           />
         </div>

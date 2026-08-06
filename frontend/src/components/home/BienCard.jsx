@@ -5,22 +5,33 @@ import { FaMapMarkerAlt, FaBed, FaBuilding } from "react-icons/fa";
 export default function BienCard({ bien }) {
   const hasPhoto = bien.images && bien.images.length > 0;
   const firstPhoto = hasPhoto ? bien.images[0] : null;
+  const fallbackImage = "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1000&q=80";
+
+  const getImageUrl = (path) => {
+    if (!path) return fallbackImage;
+    if (path.startsWith("http://") || path.startsWith("https://")) return path;
+    const apiBase = import.meta.env.VITE_API_URL || "https://gestion-bail-backend.onrender.com/api";
+    const serverUrl = apiBase.replace(/\/api\/?$/, "").replace(/\/$/, "");
+    const cleanPath = path.startsWith("/") ? path : `/${path}`;
+    return `${serverUrl}${cleanPath}`;
+  };
+
+  const handleImageError = (e) => {
+    e.target.onerror = null;
+    e.target.src = fallbackImage;
+  };
 
   return (
     <div className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between h-full">
-      {/* Photo Section with Zoom Effect */}
+      {/* Photo Section */}
       <div className="h-44 sm:h-48 bg-slate-100 relative overflow-hidden">
         {firstPhoto ? (
-         <img
-  crossOrigin="anonymous"
-  src={
-    firstPhoto.startsWith("http")
-      ? firstPhoto
-      : `${import.meta.env.VITE_API_URL.replace("/api", "")}${firstPhoto}`
-  }
-  alt={bien.titre}
-  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-/>  
+          <img
+            src={getImageUrl(firstPhoto)}
+            alt={bien.titre}
+            onError={handleImageError}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+          />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-2 bg-slate-50">
             <FaBuilding className="text-5xl text-slate-300" />
@@ -33,12 +44,14 @@ export default function BienCard({ bien }) {
           <span className="bg-blue-600 text-white text-[10px] font-extrabold tracking-wider uppercase px-2.5 py-1 rounded-lg shadow-sm">
             {bien.type}
           </span>
-          <span className={`text-[10px] font-extrabold tracking-wider uppercase px-2.5 py-1 rounded-lg shadow-sm ${
-            bien.statut === "Disponible" || !bien.statut
-              ? "bg-emerald-500 text-white"
-              : "bg-red-500 text-white"
-          }`}>
-            {bien.statut || "Disponible"}
+          <span
+            className={`text-[10px] font-extrabold tracking-wider uppercase px-2.5 py-1 rounded-lg shadow-sm ${
+              bien.statut === "Disponible" || bien.status === "disponible" || !bien.statut
+                ? "bg-emerald-500 text-white"
+                : "bg-red-500 text-white"
+            }`}
+          >
+            {bien.status || bien.statut || "Disponible"}
           </span>
         </div>
 
@@ -57,7 +70,10 @@ export default function BienCard({ bien }) {
 
           <p className="flex items-center gap-1.5 text-slate-400 text-xs mt-1.5">
             <FaMapMarkerAlt className="text-slate-400" />
-            <span className="truncate">{bien.quartier ? `${bien.quartier}, ` : ""}{bien.ville}</span>
+            <span className="truncate">
+              {bien.quartier ? `${bien.quartier}, ` : ""}
+              {bien.adresse || bien.ville}
+            </span>
           </p>
 
           <div className="grid grid-cols-2 gap-4 my-4 py-3 border-y border-slate-50 text-slate-600 text-xs font-semibold">
