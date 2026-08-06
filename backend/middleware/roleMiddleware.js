@@ -1,37 +1,35 @@
-const verifierRole =
-(...roles)=>{
+const verifierRole = (...roles) => {
+
+    return (req, res, next) => {
+
+        console.log("=== VERIFICATION ROLE ===");
+        console.log("USER COMPLET :", req.user);
+        console.log("ROLE RECU :", req.user?.role);
+        console.log("ROLES AUTORISES :", roles);
 
 
-return(req,res,next)=>{
+        if (!req.user) {
+            return res.status(401).json({
+                message: "Utilisateur non authentifié"
+            });
+        }
 
 
-console.log("roleMiddleware - req.user.role:", req.user?.role, "allowed:", roles);
+        if (!roles.includes(req.user.role)) {
+
+            return res.status(403).json({
+                message: "Permission refusée",
+                roleRecu: req.user.role,
+                rolesAutorises: roles
+            });
+
+        }
 
 
-if(!roles.includes(req.user.role)){
+        next();
 
-
-return res.status(403)
-.json({
-
-message:
-"Permission refusée"
-
-});
-
-
-}
-
-
-
-next();
-
+    };
 
 };
 
-
-};
-
-
-module.exports =
-verifierRole;
+module.exports = verifierRole;

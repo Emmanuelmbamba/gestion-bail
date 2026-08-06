@@ -16,11 +16,12 @@ router.get(
 );
 
 // Création paiement
+// Création paiement par un locataire
 router.post(
     "/",
     auth,
-    role("admin", "agent", "bailleur"),
+    role("admin", "agent", "bailleur","locataire"),
     creerPaiement
-);
+);     
 
 module.exports = router;

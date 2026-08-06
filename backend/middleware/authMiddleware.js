@@ -5,6 +5,7 @@ module.exports = (req, res, next) => {
         console.log("===== AUTH MIDDLEWARE =====");
         console.log("Authorization:", req.headers.authorization);
         console.log("JWT_SECRET:", process.env.JWT_SECRET);
+        console.log("TOKEN DECODE :", req.user);
 
         const authHeader = req.headers.authorization;
 
