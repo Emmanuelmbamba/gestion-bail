@@ -16,7 +16,7 @@ const notificationSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ["paiement", "contrat", "rappel", "systeme"],
+        enum: ["paiement", "contrat", "rappel", "systeme", "visite"],
         default: "systeme"
     },
     lu: {
