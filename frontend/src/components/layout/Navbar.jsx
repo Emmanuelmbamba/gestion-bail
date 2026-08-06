@@ -19,11 +19,11 @@ export default function Navbar() {
   return (
     <nav className="bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-100 sticky top-0 z-40">
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl h-16 flex items-center justify-between">
-        {/* LOGO */}
+       {/* LOGO */}
         <NavLink to="/" className="flex items-center gap-3 group">
           <Logo size={40} />
           <span className="font-extrabold text-slate-800 text-lg tracking-tight group-hover:text-blue-600 transition">
-            Gestion<span className="text-blue-600">-Bail</span>
+      
           </span>
         </NavLink>
 
