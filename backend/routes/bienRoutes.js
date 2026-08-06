@@ -1,56 +1,43 @@
-const express=require("express");
-
-const router=express.Router();
-
+const express = require("express");
+const router = express.Router();
 
 const {
-createBien,
-getBiens,
-getBienById,
-searchBien,
-deleteBien
+  createBien,
+  getBiens,
+  getBienById,
+  searchBien,
+  deleteBien
+} = require("../controllers/bienController");
 
-}=require("../controllers/bienController");
-
-
-const auth=require("../middleware/authMiddleware");
-
-
-
+const auth = require("../middleware/authMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 
-
 router.post(
-"/",
-auth,
-upload.array("photos",10),
-createBien
+  "/",
+  auth,
+  upload.any(),
+  createBien
 );
 
 router.get(
-"/",
-getBiens
+  "/",
+  getBiens
 );
-
 
 router.get(
-"/search",
-searchBien
+  "/search",
+  searchBien
 );
-
-
 
 router.get(
-"/:id",
-getBienById
+  "/:id",
+  getBienById
 );
-
 
 router.delete(
-"/:id",
-auth,
-deleteBien
+  "/:id",
+  auth,
+  deleteBien
 );
 
-
-module.exports=router;
+module.exports = router;

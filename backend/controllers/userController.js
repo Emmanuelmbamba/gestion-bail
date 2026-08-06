@@ -1,4 +1,6 @@
 const User = require("../models/User");
+const Locataire = require("../models/Locataire");
+const Bailleur = require("../models/Bailleur");
 const bcrypt = require("bcryptjs");
 
 // GET ALL USERS (Admin)
@@ -14,14 +16,14 @@ exports.getAllUsers = async (req, res) => {
     const users = await User.find(query).select("-password").sort({ createdAt: -1 });
     res.json(users);
   } catch (error) {
-    res.status(500).json({ message: "Erreur serveur lors de la récupération des utilisateurs" });
+    res.status(500).json({ message: error.message || "Erreur serveur lors de la récupération des utilisateurs" });
   }
 };
 
 // CREATE USER (Admin)
 exports.createUser = async (req, res) => {
   try {
-    const { nom, email, password, role, estConfirme } = req.body;
+    const { nom, email, password, role, estConfirme, telephone } = req.body;
     const existing = await User.findOne({ email });
     if (existing) {
       return res.status(400).json({ message: "Un utilisateur existe déjà avec cet e-mail" });
@@ -34,6 +36,31 @@ exports.createUser = async (req, res) => {
       role: role || "locataire",
       estConfirme: estConfirme !== undefined ? estConfirme : true,
     });
+
+    const userPhone = telephone || "Non renseigné";
+
+    if (user.role === "locataire") {
+      const locExist = await Locataire.findOne({ user: user._id });
+      if (!locExist) {
+        await Locataire.create({
+          user: user._id,
+          nom: user.nom,
+          email: user.email,
+          telephone: userPhone,
+        });
+      }
+    } else if (user.role === "bailleur") {
+      const bailExist = await Bailleur.findOne({ user: user._id });
+      if (!bailExist) {
+        await Bailleur.create({
+          user: user._id,
+          nom: user.nom,
+          email: user.email,
+          telephone: userPhone,
+        });
+      }
+    }
+
     res.status(201).json({
       message: "Utilisateur créé avec succès",
       user: {
@@ -46,14 +73,14 @@ exports.createUser = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Erreur serveur lors de la création d'utilisateur" });
+    res.status(500).json({ message: error.message || "Erreur serveur lors de la création d'utilisateur" });
   }
 };
 
 // UPDATE USER (Admin)
 exports.updateUser = async (req, res) => {
   try {
-    const { nom, email, role, estConfirme, password } = req.body;
+    const { nom, email, role, estConfirme, password, telephone } = req.body;
     const updateData = { nom, email, role, estConfirme };
 
     if (password && password.trim()) {
@@ -64,9 +91,37 @@ exports.updateUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "Utilisateur introuvable" });
     }
+
+    // Synchronize associated Locataire or Bailleur profiles
+    const userPhone = telephone || "Non renseigné";
+    await Locataire.updateMany({ user: user._id }, { nom: user.nom, email: user.email, ...(telephone && { telephone }) });
+    await Bailleur.updateMany({ user: user._id }, { nom: user.nom, email: user.email, ...(telephone && { telephone }) });
+
+    if (user.role === "locataire") {
+      const locExist = await Locataire.findOne({ user: user._id });
+      if (!locExist) {
+        await Locataire.create({
+          user: user._id,
+          nom: user.nom,
+          email: user.email,
+          telephone: userPhone,
+        });
+      }
+    } else if (user.role === "bailleur") {
+      const bailExist = await Bailleur.findOne({ user: user._id });
+      if (!bailExist) {
+        await Bailleur.create({
+          user: user._id,
+          nom: user.nom,
+          email: user.email,
+          telephone: userPhone,
+        });
+      }
+    }
+
     res.json({ message: "Utilisateur mis à jour avec succès", user });
   } catch (error) {
-    res.status(500).json({ message: "Erreur serveur lors de la mise à jour" });
+    res.status(500).json({ message: error.message || "Erreur serveur lors de la mise à jour" });
   }
 };
 
@@ -80,8 +135,13 @@ exports.deleteUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "Utilisateur introuvable" });
     }
-    res.json({ message: "Utilisateur supprimé avec succès" });
+
+    // Clean up associated profile records
+    await Locataire.deleteMany({ user: req.params.id });
+    await Bailleur.deleteMany({ user: req.params.id });
+
+    res.json({ message: "Utilisateur et ses profils associés supprimés avec succès" });
   } catch (error) {
-    res.status(500).json({ message: "Erreur serveur lors de la suppression" });
+    res.status(500).json({ message: error.message || "Erreur serveur lors de la suppression" });
   }
 };

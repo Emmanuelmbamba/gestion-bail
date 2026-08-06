@@ -14,7 +14,8 @@ import {
   FaTimesCircle,
   FaExclamationTriangle,
   FaUserTag,
-  FaEnvelope
+  FaEnvelope,
+  FaPhone
 } from "react-icons/fa";
 
 export default function Utilisateurs() {
@@ -28,6 +29,7 @@ export default function Utilisateurs() {
   const [form, setForm] = useState({
     nom: "",
     email: "",
+    telephone: "",
     password: "",
     role: "locataire",
     estConfirme: true,
@@ -65,6 +67,7 @@ export default function Utilisateurs() {
     setForm({
       nom: user.nom,
       email: user.email,
+      telephone: user.telephone || "",
       password: "",
       role: user.role,
       estConfirme: user.estConfirme,
@@ -76,6 +79,7 @@ export default function Utilisateurs() {
     setForm({
       nom: "",
       email: "",
+      telephone: "",
       password: "",
       role: "locataire",
       estConfirme: true,
@@ -89,7 +93,7 @@ export default function Utilisateurs() {
     try {
       if (editingUser) {
         await api.put(`/users/${editingUser._id}`, form);
-        setMessage({ text: "Utilisateur modifié avec succès !", type: "success" });
+        setMessage({ text: "Utilisateur mis à jour avec succès !", type: "success" });
         cancelEdit();
       } else {
         await api.post("/users", form);
@@ -97,6 +101,7 @@ export default function Utilisateurs() {
         setForm({
           nom: "",
           email: "",
+          telephone: "",
           password: "",
           role: "locataire",
           estConfirme: true,
@@ -158,7 +163,7 @@ export default function Utilisateurs() {
             <FaUserShield className="text-blue-600" /> Gestion des Comptes Utilisateurs
           </h1>
           <p className="text-slate-500 text-xs sm:text-sm mt-1">
-            Administration centralisée des identifiants, attributions de rôles et accès système.
+            Administration des identifiants, réinitialisations et attributions de rôles.
           </p>
         </div>
       </div>
@@ -216,13 +221,21 @@ export default function Utilisateurs() {
               />
 
               <Input
+                label="Téléphone (optionnel)"
+                name="telephone"
+                value={form.telephone}
+                onChange={handleChange}
+                placeholder="+243 000 000 000"
+              />
+
+              <Input
                 label={editingUser ? "Nouveau mot de passe (optionnel)" : "Mot de passe"}
                 name="password"
                 type="password"
                 value={form.password}
                 onChange={handleChange}
                 required={!editingUser}
-                placeholder={editingUser ? "Laisser vide pour ne pas modifier" : "Mot de passe"}
+                placeholder={editingUser ? "Laisser vide pour conserver" : "Mot de passe"}
               />
 
               <div>
@@ -277,7 +290,7 @@ export default function Utilisateurs() {
 
         {/* Liste des utilisateurs */}
         <div className="lg:col-span-2">
-          <Card title="Répertoire des utilisateurs" className="shadow-sm border border-slate-100 rounded-3xl">
+          <Card title="Répertoire des comptes" className="shadow-sm border border-slate-100 rounded-3xl">
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
               <div className="relative flex-1">
                 <FaSearch className="absolute left-3.5 top-3.5 text-slate-400 text-sm" />

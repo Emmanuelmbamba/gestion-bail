@@ -89,7 +89,8 @@ function Biens() {
       formData.append("chambres", Number(form.chambres || 0));
       formData.append("prix", Number(form.prix));
       formData.append("description", form.description);
-      formData.append("statut", form.statut);
+      formData.append("statut", (form.statut || "disponible").toLowerCase());
+      formData.append("status", (form.statut || "disponible").toLowerCase());
 
       selectedFiles.forEach((file) => {
         formData.append("images", file);
