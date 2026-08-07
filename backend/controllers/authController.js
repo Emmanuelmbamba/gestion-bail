@@ -7,10 +7,9 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const envoyerEmail = require("../services/emailService");
 
-// ======================
-// REGISTER
-// ======================
-    
+const BACKEND_URL = process.env.BACKEND_URL || "https://gestion-bail-backend.onrender.com";
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://gestion-bail-frontend.onrender.com";
+
 // ======================
 // REGISTER
 // ======================
@@ -19,72 +18,78 @@ exports.register = async (req, res) => {
   console.log("Body reçu :", req.body);
 
   try {
-    console.log("Données reçues :", req.body);
-
     const { nom, email, password, role } = req.body;
 
     const existe = await User.findOne({ email });
-
     if (existe) {
       return res.status(400).json({
         message: "Email déjà utilisé",
       });
     }
 
-    // ... le reste de ton code 
-
     const hashPassword = await bcrypt.hash(password, 10);
-
     const token = crypto.randomBytes(30).toString("hex");
 
     const user = await User.create({
       nom,
       email,
       password: hashPassword,
-      role,
-      estConfirme: false, // remettre false quand l'email fonctionnera
+      role: role || "locataire",
+      estConfirme: false,
       verificationToken: token,
     });
 
-    // ======================
-    // Email désactivé temporairement
-    // ======================
-    
-const urlConfirmation = `${process.env.BACKEND_URL}/api/auth/verify/${token}`;
+    // Création automatique du profil Locataire ou Bailleur
+    if (user.role === "locataire") {
+      await Locataire.create({
+        user: user._id,
+        nom: user.nom,
+        email: user.email,
+        telephone: "Non renseigné"
+      });
+    } else if (user.role === "bailleur") {
+      await Bailleur.create({
+        user: user._id,
+        nom: user.nom,
+        email: user.email,
+        telephone: "Non renseigné"
+      });
+    }
+
+    const urlConfirmation = `${BACKEND_URL}/api/auth/verify/${token}`;
 
     try {
-  await envoyerEmail(
-    email,
-    "Confirmation de votre compte",
-    `Bonjour ${nom},
+      await envoyerEmail(
+        email,
+        "Confirmation de votre compte Gestion-Bail",
+        `Bonjour ${nom},
 
-Merci pour votre inscription.
+Merci pour votre inscription sur Gestion-Bail.
 
-Veuillez confirmer votre compte :
+Veuillez cliquer sur le lien ci-dessous pour activer votre compte :
 ${urlConfirmation}
-`
-  );
 
-  console.log("✅ Email envoyé à :", email);
+Si vous n'êtes pas à l'origine de cette inscription, veuillez ignorer ce message.
 
-} catch (emailError) {
-  console.log("❌ ERREUR EMAIL :", emailError);
-}
+L'équipe Gestion-Bail`
+      );
+      console.log("✅ Email de confirmation envoyé à :", email);
+    } catch (emailError) {
+      console.log("❌ ERREUR EMAIL DE CONFIRMATION :", emailError);
+    }
 
     return res.status(201).json({
-  message: "Compte créé. Vérifiez votre email pour activer votre compte.",
-  user: {
-    nom: user.nom,
-    email: user.email,
-    role: user.role
-  },
-});
-
+      message: "Compte créé avec succès ! Un e-mail de confirmation vous a été envoyé pour activer votre compte.",
+      user: {
+        nom: user.nom,
+        email: user.email,
+        role: user.role
+      },
+    });
   } catch (error) {
-    console.error(error);
-
+    console.error("Erreur Inscription:", error);
     return res.status(500).json({
-      message: error.message,
+      message: error.message || "Erreur serveur lors de l'inscription",
     });
   }
 };
@@ -94,7 +99,6 @@ ${urlConfirmation}
 // ======================
 exports.login = async (req, res) => {
   try {
-
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
@@ -105,15 +109,13 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Vérification email désactivée
     if (!user.estConfirme) {
-    return res.status(403).json({
-    message: "Veuillez confirmer votre adresse e-mail."
-     });
+      return res.status(403).json({
+        message: "Veuillez confirmer votre adresse e-mail en cliquant sur le lien reçu par e-mail."
+      });
     }
 
     const valide = await bcrypt.compare(password, user.password);
-
     if (!valide) {
       return res.status(400).json({
         message: "Mot de passe incorrect",
@@ -127,7 +129,7 @@ exports.login = async (req, res) => {
         nom: user.nom,
         email: user.email,
       },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || "SUPER_SECRET_KEY",
       {
         expiresIn: "7d",
       }
@@ -142,7 +144,6 @@ exports.login = async (req, res) => {
         role: user.role,
       },
     });
-
   } catch (error) {
     res.status(500).json({
       message: error.message,
@@ -151,7 +152,7 @@ exports.login = async (req, res) => {
 };
 
 // ======================
-// LOCATAIRES
+// LOCATAIRES (Users list)
 // ======================
 exports.getLocataires = async (req, res) => {
   try {
@@ -163,7 +164,7 @@ exports.getLocataires = async (req, res) => {
 };
 
 // ======================
-// BAILLEURS
+// BAILLEURS (Users list)
 // ======================
 exports.getBailleursUsers = async (req, res) => {
   try {
@@ -179,50 +180,46 @@ exports.getBailleursUsers = async (req, res) => {
 // ======================
 exports.forgotPassword = async (req, res) => {
   try {
-
     const { email } = req.body;
-
     const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(404).json({
-        message: "Utilisateur introuvable",
+        message: "Utilisateur introuvable avec cet e-mail",
       });
     }
 
     const token = crypto.randomBytes(20).toString("hex");
 
     user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 3600000;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 heure
+    await user.save();
 
-await user.save();
+    const resetUrl = `${FRONTEND_URL}/reset-password/${token}`;
 
-const resetUrl =`https://gestion-bail-frontend.onrender.com/reset-password?token=${token}`;
+    try {
+      await envoyerEmail(
+        email,
+        "Réinitialisation du mot de passe - Gestion-Bail",
+        `Bonjour ${user.nom},
 
-try {
-  await envoyerEmail(  email,  "Réinitialisation du mot de passe",  `Bonjour ${user.nom},
+Vous avez demandé la réinitialisation de votre mot de passe.
 
-Vous avez demandé une modification de votre mot de passe.
-
-Cliquez sur ce lien pour créer un nouveau mot de passe :
-
+Veuillez cliquer sur le lien ci-dessous pour créer votre nouveau mot de passe :
 ${resetUrl}
 
 Ce lien expire dans 1 heure.
 
-Gestion-Bail RDC`
-);
+L'équipe Gestion-Bail`
+      );
+      console.log("✅ Email de réinitialisation envoyé à :", email);
+    } catch (emailError) {
+      console.log("❌ Erreur envoi réinitialisation :", emailError);
+    }
 
-  console.log("✅ Email reset envoyé à :", email);
-
-} catch (emailError) {
-  console.log("❌ Erreur envoi reset :", emailError);
-}
-
-res.json({
-  message: "Un lien de réinitialisation a été envoyé à votre adresse email.",
-});
-
+    res.json({
+      message: "Un lien de réinitialisation valide a été envoyé à votre e-mail.",
+    });
   } catch (error) {
     res.status(500).json({
       message: error.message,
@@ -235,8 +232,13 @@ res.json({
 // ======================
 exports.resetPassword = async (req, res) => {
   try {
-
     const { token, password } = req.body;
+
+    if (!token) {
+      return res.status(400).json({
+        message: "Jeton de réinitialisation manquant.",
+      });
+    }
 
     const user = await User.findOne({
       resetPasswordToken: token,
@@ -245,20 +247,18 @@ exports.resetPassword = async (req, res) => {
 
     if (!user) {
       return res.status(400).json({
-        message: "Jeton invalide ou expiré",
+        message: "Jeton invalide ou expiré.",
       });
     }
 
     user.password = await bcrypt.hash(password, 10);
     user.resetPasswordToken = null;
     user.resetPasswordExpires = null;
-
     await user.save();
 
     res.json({
       message: "Mot de passe modifié avec succès.",
     });
-
   } catch (error) {
     res.status(500).json({
       message: error.message,
@@ -271,19 +271,15 @@ exports.resetPassword = async (req, res) => {
 // ======================
 exports.deleteAccount = async (req, res) => {
   try {
-
     const userId = req.user.id;
 
     const hasContract = await Contrat.findOne({
-      $or: [
-        { locataire: userId },
-        { bailleur: userId },
-      ],
+      $or: [{ locataire: userId }, { bailleur: userId }],
     });
 
     if (hasContract) {
       return res.status(400).json({
-        message: "Impossible de supprimer le compte car un contrat existe.",
+        message: "Impossible de supprimer le compte car un contrat de bail actif est rattaché.",
       });
     }
 
@@ -294,7 +290,6 @@ exports.deleteAccount = async (req, res) => {
     res.json({
       message: "Compte supprimé avec succès.",
     });
-
   } catch (error) {
     res.status(500).json({
       message: error.message,
@@ -307,24 +302,43 @@ exports.deleteAccount = async (req, res) => {
 // ======================
 exports.verifyEmail = async (req, res) => {
   try {
+    const token = req.params.token;
 
     const user = await User.findOne({
-      verificationToken: req.params.token,
+      verificationToken: token,
     });
 
     if (!user) {
-      return res.status(400).send("Lien invalide.");
+      return res.status(400).send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Lien invalide - Gestion-Bail</title>
+          <style>
+            body { font-family: system-ui, sans-serif; text-align: center; padding: 60px 20px; background-color: #f8fafc; color: #1e293b; }
+            .card { background: white; border-radius: 24px; padding: 40px; max-width: 450px; margin: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+            h2 { color: #dc2626; margin-bottom: 12px; }
+            p { color: #64748b; font-size: 14px; line-height: 1.6; }
+            a { display: inline-block; margin-top: 20px; padding: 12px 24px; background: #2563eb; color: white; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 14px; }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <h2>Lien invalide ou expiré ❌</h2>
+            <p>Ce lien de confirmation a déjà été utilisé ou n'existe plus.</p>
+            <a href="${FRONTEND_URL}/login">Se connecter</a>
+          </div>
+        </body>
+        </html>
+      `);
     }
 
     user.estConfirme = true;
     user.verificationToken = null;
-
     await user.save();
 
-    res.redirect(
-  `${process.env.FRONTEND_URL}/login?verified=true`
-);
-
+    res.redirect(`${FRONTEND_URL}/login?verified=true`);
   } catch (error) {
     res.status(500).json({
       message: error.message,
