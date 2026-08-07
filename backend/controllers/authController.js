@@ -156,6 +156,53 @@ exports.login = async (req, res) => {
 // ======================
 exports.getLocataires = async (req, res) => {
   try {
+    const userRole = (req.user?.role || "").toLowerCase();
+    const userIdStr = req.user?.id ? req.user.id.toString() : "";
+
+    if (userRole === "bailleur") {
+      const Bailleur = require("../models/Bailleur");
+      const Bien = require("../models/Bien");
+      const DemandeVisite = require("../models/DemandeVisite");
+      const Contrat = require("../models/Contrat");
+
+      const bailleurProfile = await Bailleur.findOne({ user: userIdStr });
+      const bailleurIds = [userIdStr];
+      if (bailleurProfile) {
+        bailleurIds.push(bailleurProfile._id.toString());
+      }
+
+      // 1. Vos biens
+      const mesBiens = await Bien.find({
+        $or: [
+          { bailleur: { $in: bailleurIds } },
+          { proprietaire: { $in: bailleurIds } }
+        ]
+      }).select("_id");
+      const bienIds = mesBiens.map((b) => b._id);
+
+      // 2. Utilisateurs ayant demandé une visite pour vos biens
+      const visites = await DemandeVisite.find({ bien: { $in: bienIds } }).select("client");
+      const visitClientIds = visites.map((v) => v.client).filter(Boolean);
+
+      // 3. Locataires sous contrat avec vous
+      const contrats = await Contrat.find({
+        $or: [
+          { bailleur: { $in: bailleurIds } }
+        ]
+      }).select("locataire");
+      const contratLocataireIds = contrats.map((c) => c.locataire).filter(Boolean);
+
+      const allowedUserIds = [...new Set([...visitClientIds, ...contratLocataireIds].map(id => id.toString()))];
+
+      const locataires = await User.find({
+        _id: { $in: allowedUserIds },
+        role: "locataire"
+      }).select("-password");
+
+      return res.json(locataires);
+    }
+
+    // Admin / Agent : tous les locataires
     const locataires = await User.find({ role: "locataire" }).select("-password");
     res.json(locataires);
   } catch (error) {

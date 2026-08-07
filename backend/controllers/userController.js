@@ -6,6 +6,13 @@ const bcrypt = require("bcryptjs");
 // GET ALL USERS (Admin)
 exports.getAllUsers = async (req, res) => {
   try {
+    const userRole = (req.user?.role || "").toLowerCase();
+    if (userRole === "bailleur") {
+      return res.status(403).json({
+        message: "En tant que bailleur, vous ne pouvez pas consulter la liste globale des utilisateurs du système."
+      });
+    }
+
     let query = {};
     if (req.query.search) {
       const regex = new RegExp(req.query.search, "i");
