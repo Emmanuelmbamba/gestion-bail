@@ -14,7 +14,10 @@ import {
   FaDollarSign,
   FaTrash,
   FaCheckCircle,
-  FaExclamationTriangle
+  FaExclamationTriangle,
+  FaCamera,
+  FaImages,
+  FaTimes
 } from "react-icons/fa";
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000/api").replace("/api", "");
@@ -24,6 +27,7 @@ function Biens() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [previews, setPreviews] = useState([]);
   const [message, setMessage] = useState({ text: "", type: "" });
 
   const [form, setForm] = useState({
@@ -37,6 +41,18 @@ function Biens() {
     description: "",
     statut: "Disponible"
   });
+
+  // Nettoyage et création des URLs de prévisualisation
+  useEffect(() => {
+    if (!selectedFiles.length) {
+      setPreviews([]);
+      return;
+    }
+    const objectUrls = selectedFiles.map((file) => URL.createObjectURL(file));
+    setPreviews(objectUrls);
+
+    return () => objectUrls.forEach((url) => URL.revokeObjectURL(url));
+  }, [selectedFiles]);
 
   const loadBiens = useCallback(async () => {
     try {
@@ -73,7 +89,15 @@ function Biens() {
   };
 
   const handleFileChange = (e) => {
-    setSelectedFiles(Array.from(e.target.files));
+    const newFiles = Array.from(e.target.files);
+    if (newFiles.length > 0) {
+      setSelectedFiles((prev) => [...prev, ...newFiles]);
+    }
+    e.target.value = "";
+  };
+
+  const handleRemoveFile = (indexToRemove) => {
+    setSelectedFiles((prev) => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
   const handleSubmit = async (e) => {
@@ -110,9 +134,6 @@ function Biens() {
         statut: "Disponible"
       });
       setSelectedFiles([]);
-
-      const fileInput = document.getElementById("file-upload-input");
-      if (fileInput) fileInput.value = "";
 
       await loadBiens();
       setMessage({ text: "Bien immobilier ajouté avec succès !", type: "success" });
@@ -285,17 +306,74 @@ function Biens() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Photos (Fichiers image)
-                </label>
-                <input
-                  id="file-upload-input"
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="w-full border border-slate-200 rounded-xl px-3 py-2 bg-slate-50/50 text-slate-800 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
-                />
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Photos du bien
+                  </label>
+                  {selectedFiles.length > 0 && (
+                    <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">
+                      {selectedFiles.length} photo{selectedFiles.length > 1 ? "s" : ""}
+                    </span>
+                  )}
+                </div>
+
+                <div
+                  onClick={() => document.getElementById("file-upload-input")?.click()}
+                  className="border-2 border-dashed border-slate-200 hover:border-blue-500 rounded-2xl p-4 bg-slate-50/50 hover:bg-blue-50/30 transition cursor-pointer text-center group"
+                >
+                  <input
+                    id="file-upload-input"
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <div className="flex items-center justify-center gap-3 text-slate-500 group-hover:text-blue-600 transition">
+                    <div className="p-2.5 bg-white shadow-xs rounded-xl border border-slate-200 group-hover:border-blue-300">
+                      <FaCamera className="text-lg text-blue-600" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-xs font-bold text-slate-800 group-hover:text-blue-600">
+                        + Ajouter des photos
+                      </p>
+                      <p className="text-[11px] text-slate-400">
+                        Prenez ou choisissez plusieurs photos (Appareil / Galerie)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {previews.length > 0 && (
+                  <div className="mt-3 grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {previews.map((url, idx) => (
+                      <div
+                        key={idx}
+                        className="relative group rounded-xl overflow-hidden aspect-square border border-slate-200 bg-slate-100 shadow-xs"
+                      >
+                        <img
+                          src={url}
+                          alt={`Aperçu ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute bottom-1 left-1 bg-black/60 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                          #{idx + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveFile(idx);
+                          }}
+                          className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full text-xs shadow-md hover:bg-red-700 transition cursor-pointer"
+                          title="Supprimer cette photo"
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>
@@ -376,6 +454,12 @@ function Biens() {
                         >
                           {bien.statut || "Disponible"}
                         </span>
+
+                        {hasPhoto && bien.images.length > 1 && (
+                          <span className="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-xs text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
+                            <FaImages className="text-blue-400" /> {bien.images.length} photos
+                          </span>
+                        )}
                       </div>
 
                       {/* Details */}

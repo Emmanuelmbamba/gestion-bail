@@ -10,6 +10,7 @@ import {
   FaHome,
   FaUser,
   FaBan,
+  FaPhone,
   FaCheckCircle,
   FaExclamationTriangle
 } from "react-icons/fa";
@@ -19,6 +20,9 @@ function Visites() {
   const [visites, setVisites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({ text: "", type: "" });
+
+  const userRole = (user?.role || "").toLowerCase();
+  const isBailleur = userRole === "bailleur";
 
   const chargerVisites = useCallback(async () => {
     try {
@@ -71,8 +75,10 @@ function Visites() {
           <FaCalendarAlt className="text-blue-600" /> Demandes & Plannings de Visites
         </h1>
         <p className="text-slate-500 text-xs sm:text-sm mt-1">
-          {user?.role === "locataire"
+          {userRole === "locataire"
             ? "Suivez le statut de vos demandes de visite de logements"
+            : isBailleur
+            ? "Consultez et gérez uniquement la liste des visiteurs et demandes de visite de vos propres biens"
             : "Gérez les plannings et réponses aux demandes de visite"}
         </p>
       </div>
@@ -110,12 +116,17 @@ function Visites() {
         <div className="bg-white border border-slate-100 p-12 rounded-3xl text-center text-slate-500 shadow-xs">
           <FaCalendarAlt className="text-4xl text-slate-300 mx-auto mb-2" />
           <p className="font-semibold text-slate-700">Aucune demande de visite enregistrée</p>
+          <p className="text-xs text-slate-400 mt-1">
+            {isBailleur
+              ? "Aucun visiteur n'a encore sollicité de rendez-vous pour vos logements."
+              : "Vos demandes de visite apparaîtront ici."}
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {visites.map((visite) => {
             const isPending = visite.statut === "En attente";
-            const canManage = user?.role === "bailleur" || user?.role === "admin" || user?.role === "agent";
+            const canManage = isBailleur || userRole === "admin" || userRole === "agent";
             const visitClientId = visite.client?._id || visite.client;
             const isClient = user?.id === visitClientId;
 
@@ -138,12 +149,18 @@ function Visites() {
                   <div className="space-y-2 text-xs text-slate-600 font-medium">
                     <p className="flex items-center gap-2">
                       <FaUser className="text-slate-400 w-4 shrink-0" />
-                      <span><strong>Client :</strong> {visite.client?.nom || "Inconnu"}</span>
+                      <span><strong>Nom du visiteur :</strong> {visite.client?.nom || "Inconnu"}</span>
                     </p>
                     <p className="flex items-center gap-2">
                       <FaEnvelope className="text-slate-400 w-4 shrink-0" />
                       <span><strong>Email :</strong> {visite.client?.email || "N/A"}</span>
                     </p>
+                    {visite.client?.telephone && (
+                      <p className="flex items-center gap-2">
+                        <FaPhone className="text-slate-400 w-4 shrink-0" />
+                        <span><strong>Téléphone :</strong> {visite.client.telephone}</span>
+                      </p>
+                    )}
                     <p className="flex items-center gap-2">
                       <FaCalendarAlt className="text-slate-400 w-4 shrink-0" />
                       <span><strong>Date souhaitée :</strong> {new Date(visite.dateVisite).toLocaleDateString("fr-FR")}</span>
