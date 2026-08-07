@@ -27,7 +27,7 @@ export default function SearchBox() {
 
   return (
     <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-slate-100 p-5 md:p-6 text-slate-800">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-center">
         {/* Ville Input */}
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -80,10 +80,24 @@ export default function SearchBox() {
           />
         </div>
 
+        {/* Prix Max Input */}
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+            <FaDollarSign />
+          </div>
+          <input
+            name="max"
+            placeholder="Loyer max ($)"
+            type="number"
+            className="w-full pl-9 pr-3 py-3 border border-slate-200 rounded-xl text-slate-800 text-sm bg-slate-50/50 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 font-semibold"
+            onChange={handleChange}
+          />
+        </div>
+
         {/* Search Button */}
         <button
           onClick={rechercher}
-          className="w-full py-3 px-6 text-white font-bold text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full py-3 px-4 text-white font-bold text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shrink-0"
         >
           <FaSearch /> Rechercher
         </button>

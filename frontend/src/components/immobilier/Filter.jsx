@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaFilter, FaSearch, FaMapMarkerAlt, FaHome, FaDollarSign } from "react-icons/fa";
+import { FaFilter, FaSearch, FaMapMarkerAlt, FaHome, FaDollarSign, FaRedo } from "react-icons/fa";
 
 export default function Filter({ onSearch, initialValues = {} }) {
   const [filters, setFilters] = useState({
@@ -29,14 +29,33 @@ export default function Filter({ onSearch, initialValues = {} }) {
     onSearch(filters);
   };
 
+  const handleReset = () => {
+    const resetState = { ville: "", type: "", statut: "", min: "", max: "" };
+    setFilters(resetState);
+    onSearch(resetState);
+  };
+
+  const hasActiveFilters = Boolean(filters.ville || filters.type || filters.statut || filters.min || filters.max);
+
   return (
     <form onSubmit={submit} className="space-y-4">
-      <div className="flex items-center gap-2 text-slate-800 border-b border-slate-100 pb-3">
-        <FaFilter className="text-blue-600 text-sm" />
-        <h2 className="text-base font-bold">Filtrer les annonces</h2>
+      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="flex items-center gap-2 text-slate-800">
+          <FaFilter className="text-blue-600 text-sm" />
+          <h2 className="text-base font-bold">Filtrer par budget & critères</h2>
+        </div>
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={handleReset}
+            className="text-xs font-semibold text-slate-400 hover:text-red-600 flex items-center gap-1 transition cursor-pointer"
+          >
+            <FaRedo className="text-[10px]" /> Réinitialiser
+          </button>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {/* Ville */}
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -111,12 +130,27 @@ export default function Filter({ onSearch, initialValues = {} }) {
           />
         </div>
 
+        {/* Prix Max */}
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+            <FaDollarSign className="text-xs" />
+          </div>
+          <input
+            name="max"
+            type="number"
+            value={filters.max || ""}
+            placeholder="Prix max ($)"
+            className="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-slate-800 text-xs bg-slate-50/50 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold"
+            onChange={handleChange}
+          />
+        </div>
+
         {/* Search Button */}
         <button
           type="submit"
-          className="w-full py-2.5 px-4 text-white font-bold text-xs bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-sm hover:shadow transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+          className="w-full py-2.5 px-3 text-white font-bold text-xs bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-sm hover:shadow transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
         >
-          <FaSearch /> Appliquer les filtres
+          <FaSearch /> Filtrer
         </button>
       </div>
     </form>

@@ -158,23 +158,45 @@ exports.getBienById = async (req, res) => {
 // =======================
 exports.searchBien = async (req, res) => {
   try {
-    const { ville, type, min, max } = req.query;
+    const { ville, type, min, max, statut, q } = req.query;
     let filtre = {};
 
-    if (ville) {
-      filtre.adresse = { $regex: ville, $options: "i" };
-    }
-    if (type) {
-      filtre.type = type;
-    }
-    if (min) {
-      filtre.prix = { $gte: Number(min) };
-    }
-    if (max) {
-      filtre.prix = { ...filtre.prix, $lte: Number(max) };
+    // Recherche par mots clés (ville, quartier, adresse, titre)
+    const searchTerm = (q || ville || "").trim();
+    if (searchTerm) {
+      const regex = new RegExp(searchTerm, "i");
+      filtre.$or = [
+        { adresse: regex },
+        { titre: regex },
+        { description: regex }
+      ];
     }
 
-    const biens = await Bien.find(filtre);
+    // Type de bien (insensible à la casse)
+    if (type && type.trim()) {
+      filtre.type = new RegExp(`^${type.trim()}$`, "i");
+    }
+
+    // Statut
+    if (statut && statut.trim()) {
+      filtre.status = new RegExp(`^${statut.trim()}$`, "i");
+    }
+
+    // Filtrage précis par prix min et/ou max
+    const minPrice = min !== undefined && min !== null && min !== "" ? Number(min) : null;
+    const maxPrice = max !== undefined && max !== null && max !== "" ? Number(max) : null;
+
+    if (minPrice !== null && !isNaN(minPrice) && maxPrice !== null && !isNaN(maxPrice)) {
+      filtre.prix = { $gte: minPrice, $lte: maxPrice };
+    } else if (minPrice !== null && !isNaN(minPrice)) {
+      filtre.prix = { $gte: minPrice };
+    } else if (maxPrice !== null && !isNaN(maxPrice)) {
+      filtre.prix = { $lte: maxPrice };
+    }
+
+    console.log("=== FILTRE DE RECHERCHE BIENS ===", filtre);
+
+    const biens = await Bien.find(filtre).sort({ prix: 1, createdAt: -1 });
     res.json(biens);
   } catch (error) {
     console.error("Erreur searchBien :", error);
