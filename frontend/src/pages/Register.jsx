@@ -31,7 +31,6 @@ function Register() {
   });
 
   const [smsCode, setSmsCode] = useState("");
-  const [demoSmsCode, setDemoSmsCode] = useState("");
   const [targetIdentifier, setTargetIdentifier] = useState("");
 
   const [message, setMessage] = useState("");
@@ -69,12 +68,9 @@ function Register() {
       console.log("Inscription réussie :", response.data);
 
       setSuccess(true);
-      setMessage(response.data.message || "Compte créé. Saisissez le code SMS reçu pour activer votre compte.");
+      setMessage(response.data.message || "Compte créé. Veuillez consulter votre téléphone et saisir le code SMS reçu.");
       
-      const sentCode = response.data.smsCode || "";
       const phoneOrEmail = response.data.telephone || formData.telephone || formData.email;
-      
-      setDemoSmsCode(sentCode);
       setTargetIdentifier(phoneOrEmail);
       
       // Passage à l'étape de saisie du code SMS
@@ -146,7 +142,7 @@ function Register() {
       setSuccess(false);
       setMessage(
         error.response?.data?.message ||
-        "Erreur lors de la validation du code SMS. Veuillez réessayer."
+        "Erreur lors de la validation du code SMS. Veuillez vérifier le code reçu sur votre téléphone."
       );
     } finally {
       setLoading(false);
@@ -161,10 +157,7 @@ function Register() {
         identifier: targetIdentifier || formData.telephone || formData.email
       });
       setSuccess(true);
-      setMessage(res.data.message || "Un nouveau code SMS vous a été envoyé !");
-      if (res.data.smsCode) {
-        setDemoSmsCode(res.data.smsCode);
-      }
+      setMessage(res.data.message || "Un nouveau code SMS a été envoyé sur votre téléphone !");
     } catch (err) {
       setSuccess(false);
       setMessage(err.response?.data?.message || "Impossible de renvoyer le code pour le moment.");
@@ -339,19 +332,9 @@ function Register() {
               </div>
               <h1 className="text-2xl font-black text-slate-800 tracking-tight">Confirmation par SMS</h1>
               <p className="text-slate-500 text-xs mt-1 font-medium">
-                Saisissez le code à 6 chiffres transmis au <strong className="text-slate-700">{targetIdentifier}</strong>
+                Consultez vos messages et saisissez le code à 6 chiffres transmis au <strong className="text-slate-700">{targetIdentifier}</strong>
               </p>
             </div>
-
-            {demoSmsCode && (
-              <div className="mb-6 p-4 rounded-2xl bg-blue-50 border border-blue-200 text-blue-800 text-xs font-semibold text-center flex flex-col items-center gap-1 shadow-xs">
-                <span className="text-[10px] uppercase font-extrabold tracking-wider text-blue-500">📲 Notification SMS Reçue</span>
-                <span className="text-lg font-black tracking-widest text-blue-700 bg-white px-4 py-1.5 rounded-xl border border-blue-200 shadow-inner">
-                  {demoSmsCode}
-                </span>
-                <span className="text-[10px] text-blue-600 mt-0.5">Code de validation prêt à être saisi</span>
-              </div>
-            )}
 
             {message && (
               <div className={`mb-6 p-4 rounded-2xl border text-xs font-semibold ${

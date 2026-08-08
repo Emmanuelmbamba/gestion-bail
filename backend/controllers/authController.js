@@ -67,11 +67,10 @@ exports.register = async (req, res) => {
     await smsService.sendSMSCode(userPhone, smsCode);
 
     return res.status(201).json({
-      message: "Compte créé avec succès ! Un code de confirmation à 6 chiffres vous a été envoyé par SMS.",
+      message: `Compte créé avec succès ! Un code de confirmation à 6 chiffres vous a été envoyé par SMS au ${user.telephone}.`,
       requireSmsVerification: true,
       email: user.email,
       telephone: user.telephone,
-      smsCode: smsCode, // transmis pour démonstration/test immédiat
       user: {
         nom: user.nom,
         email: user.email,
@@ -193,8 +192,7 @@ exports.resendSmsCode = async (req, res) => {
     await smsService.sendSMSCode(user.telephone || identifier, newCode);
 
     res.json({
-      message: "Un nouveau code de confirmation SMS vous a été envoyé.",
-      smsCode: newCode
+      message: `Un nouveau code de confirmation SMS a été envoyé au ${user.telephone || identifier}.`
     });
   } catch (error) {
     res.status(500).json({ message: error.message || "Erreur lors du renvoi du code SMS" });
