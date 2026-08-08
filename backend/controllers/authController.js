@@ -63,11 +63,23 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Envoi du code SMS
+    // Envoi du code par SMS et E-mail (fallback)
     await smsService.sendSMSCode(userPhone, smsCode);
 
+    if (user.email) {
+      try {
+        await envoyerEmail(
+          user.email,
+          "Code de confirmation de compte - Gestion-Bail",
+          `Bonjour ${user.nom},\n\nVotre code de confirmation de compte est : ${smsCode}.\n\nCe code expire dans 15 minutes.\n\nL'équipe Gestion-Bail`
+        );
+      } catch (eErr) {
+        console.error("Erreur envoi email fallback :", eErr.message);
+      }
+    }
+
     return res.status(201).json({
-      message: `Compte créé avec succès ! Un code de confirmation à 6 chiffres vous a été envoyé par SMS au ${user.telephone}.`,
+      message: `Compte créé avec succès ! Un code de confirmation à 6 chiffres vous a été envoyé par SMS au ${user.telephone} (et par e-mail).`,
       requireSmsVerification: true,
       email: user.email,
       telephone: user.telephone,
@@ -191,8 +203,20 @@ exports.resendSmsCode = async (req, res) => {
 
     await smsService.sendSMSCode(user.telephone || identifier, newCode);
 
+    if (user.email) {
+      try {
+        await envoyerEmail(
+          user.email,
+          "Nouveau code de confirmation - Gestion-Bail",
+          `Bonjour ${user.nom},\n\nVotre nouveau code de confirmation est : ${newCode}.\n\nCe code expire dans 15 minutes.\n\nL'équipe Gestion-Bail`
+        );
+      } catch (eErr) {
+        console.error("Erreur envoi email fallback :", eErr.message);
+      }
+    }
+
     res.json({
-      message: `Un nouveau code de confirmation SMS a été envoyé au ${user.telephone || identifier}.`
+      message: `Un nouveau code de confirmation a été envoyé par SMS au ${user.telephone || identifier} et à votre adresse e-mail.`
     });
   } catch (error) {
     res.status(500).json({ message: error.message || "Erreur lors du renvoi du code SMS" });
