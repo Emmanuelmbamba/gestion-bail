@@ -1,70 +1,173 @@
 const SibApiV3Sdk = require("sib-api-v3-sdk");
 
-/**
- * Service d'envoi de SMS (Code de confirmation OTP)
- */
-const sendSMSCode = async (telephone, code) => {
-  const message = `[Gestion-Bail] Votre code de confirmation de compte est : ${code}. Il expire dans 15 minutes.`;
+function normalizePhone(telephone) {
+  let phone = String(telephone || "")
+    .trim()
+    .replace(/\s+/g, "")
+    .replace(/-/g, "")
+    .replace(/\(/g, "")
+    .replace(/\)/g, "");
 
-  // Formatage du numéro au format international (ex: RDC +243...)
-  let cleanPhone = (telephone || "").toString().replace(/\s+/g, "").replace(/-/g, "");
-  if (cleanPhone.startsWith("0")) {
-    cleanPhone = "+243" + cleanPhone.substring(1);
-  } else if (!cleanPhone.startsWith("+") && cleanPhone.length >= 8) {
-    cleanPhone = "+243" + cleanPhone;
+  if (phone.startsWith("00")) {
+    phone = "+" + phone.substring(2);
+  }
+
+  if (phone.startsWith("0")) {
+    phone = "+243" + phone.substring(1);
+  }
+
+  if (!phone.startsWith("+") && phone.startsWith("243")) {
+    phone = "+" + phone;
+  }
+
+  if (!phone.startsWith("+") && phone.length >= 9) {
+    phone = "+243" + phone;
+  }
+
+  const phoneRegex = /^\+[1-9]\d{7,14}$/;
+
+  if (!phoneRegex.test(phone)) {
+    throw new Error("Numero de telephone invalide : " + phone);
+  }
+
+  return phone;
+}
+
+async function sendSMSCode(telephone, code) {
+  const message =
+    "[Gestion-Bail] Votre code de confirmation de compte est : " +
+    code +
+    ". Il expire dans 15 minutes.";
+
+  let cleanPhone;
+
+  try {
+    cleanPhone = normalizePhone(telephone);
+  } catch (error) {
+    console.error("Erreur numero telephone :", error.message);
+
+    return {
+      success: false,
+      telephone,
+      code,
+      error: error.message
+    };
   }
 
   console.log("==========================================");
-  console.log(`📲 [SMS SERVICE] ENVOI SMS AU : ${cleanPhone}`);
-  console.log(`💬 MESSAGE : ${message}`);
+  console.log("SMS SERVICE");
+  console.log("Numero :", cleanPhone);
+  console.log("Message :", message);
   console.log("==========================================");
 
   let sent = false;
 
-  // 1. Envoi via Brevo (ex-Sendinblue) Transactional SMS
+  // BREVO
   if (process.env.BREVO_API_KEY) {
     try {
       const defaultClient = SibApiV3Sdk.ApiClient.instance;
-      const apiKey = defaultClient.authentications["api-key"];
+
+      const apiKey =
+        defaultClient.authentications["api-key"];
+
       apiKey.apiKey = process.env.BREVO_API_KEY;
 
-      const apiInstance = new SibApiV3Sdk.TransactionalSMSApi();
-      const sendTransacSms = new SibApiV3Sdk.SendTransacSms();
+      const apiInstance =
+        new SibApiV3Sdk.TransactionalSMSApi();
 
-      // Format Brevo : Chiffres uniquement sans le signe +
-      const recipientNumber = cleanPhone.replace("+", "");
-      
+      const sendTransacSms =
+        new SibApiV3Sdk.SendTransacSms();
+
       sendTransacSms.sender = "GestionBail";
-      sendTransacSms.recipient = recipientNumber;
+
+      sendTransacSms.recipient =
+        cleanPhone.replace("+", "");
+
       sendTransacSms.content = message;
       sendTransacSms.type = "transactional";
 
-      const data = await apiInstance.sendTransacSms(sendTransacSms);
-      console.log("✅ SMS transmis avec succès à l'opérateur via Brevo pour :", cleanPhone, data);
+      const data =
+        await apiInstance.sendTransacSms(
+          sendTransacSms
+        );
+
+      console.log(
+        "SMS Brevo accepte :",
+        cleanPhone
+      );
+
+      console.log(
+        "Reponse Brevo :",
+        data
+      );
+
       sent = true;
-    } catch (err) {
-      console.error("❌ Erreur envoi SMS Brevo :", err.response?.body?.message || err.message || err);
+
+    } catch (error) {
+      console.error(
+        "Erreur Brevo :",
+        error.response?.body?.message ||
+        error.message ||
+        error
+      );
     }
   }
 
-  // 2. Envoi via Twilio SMS (si configuré)
-  if (!sent && process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_PHONE_NUMBER) {
+  // TWILIO
+  if (
+    !sent &&
+    process.env.TWILIO_ACCOUNT_SID &&
+    process.env.TWILIO_AUTH_TOKEN &&
+    process.env.TWILIO_PHONE_NUMBER
+  ) {
     try {
-      const client = require("twilio")(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-      await client.messages.create({
-        body: message,
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: cleanPhone
-      });
-      console.log("✅ SMS envoyé avec succès via Twilio à :", cleanPhone);
+      const client =
+        require("twilio")(
+          process.env.TWILIO_ACCOUNT_SID,
+          process.env.TWILIO_AUTH_TOKEN
+        );
+
+      const response =
+        await client.messages.create({
+          body: message,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: cleanPhone
+        });
+
+      console.log(
+        "SMS Twilio accepte :",
+        cleanPhone
+      );
+
+      console.log(
+        "Twilio SID :",
+        response.sid
+      );
+
       sent = true;
-    } catch (err) {
-      console.error("❌ Erreur envoi SMS Twilio :", err.message);
+
+    } catch (error) {
+      console.error(
+        "Erreur Twilio :",
+        error.message
+      );
     }
   }
 
-  return { success: sent, telephone: cleanPhone, code };
+  if (!sent) {
+    console.error(
+      "Aucun fournisseur SMS n'a reussi a envoyer le SMS."
+    );
+  }
+
+  return {
+    success: sent,
+    telephone: cleanPhone,
+    code
+  };
+}
+
+module.exports = {
+  sendSMSCode,
+  normalizePhone
 };
-
-module.exports = { sendSMSCode };
-
