@@ -312,34 +312,57 @@ function Biens() {
                   </label>
                   {selectedFiles.length > 0 && (
                     <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">
-                      {selectedFiles.length} photo{selectedFiles.length > 1 ? "s" : ""}
+                      {selectedFiles.length} photo{selectedFiles.length > 1 ? "s" : ""} sélectionnée{selectedFiles.length > 1 ? "s" : ""}
                     </span>
                   )}
                 </div>
 
-                <div
-                  onClick={() => document.getElementById("file-upload-input")?.click()}
-                  className="border-2 border-dashed border-slate-200 hover:border-blue-500 rounded-2xl p-4 bg-slate-50/50 hover:bg-blue-50/30 transition cursor-pointer text-center group"
-                >
-                  <input
-                    id="file-upload-input"
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                  <div className="flex items-center justify-center gap-3 text-slate-500 group-hover:text-blue-600 transition">
-                    <div className="p-2.5 bg-white shadow-xs rounded-xl border border-slate-200 group-hover:border-blue-300">
-                      <FaCamera className="text-lg text-blue-600" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                  {/* Option 1: Appareil Photo Mobile */}
+                  <div
+                    onClick={() => document.getElementById("camera-upload-input")?.click()}
+                    className="border-2 border-dashed border-slate-200 hover:border-blue-500 rounded-2xl p-3.5 bg-slate-50/50 hover:bg-blue-50/30 transition cursor-pointer text-center group flex items-center gap-3"
+                  >
+                    <input
+                      id="camera-upload-input"
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <div className="p-2.5 bg-white shadow-xs rounded-xl border border-slate-200 group-hover:border-blue-300 shrink-0">
+                      <FaCamera className="text-base text-blue-600" />
                     </div>
                     <div className="text-left">
                       <p className="text-xs font-bold text-slate-800 group-hover:text-blue-600">
-                        + Ajouter des photos
+                        Prendre une photo
                       </p>
-                      <p className="text-[11px] text-slate-400">
-                        Prenez ou choisissez plusieurs photos (Appareil / Galerie)
+                      <p className="text-[10px] text-slate-400">Caméra smartphone</p>
+                    </div>
+                  </div>
+
+                  {/* Option 2: Galerie Multi-Photos */}
+                  <div
+                    onClick={() => document.getElementById("gallery-upload-input")?.click()}
+                    className="border-2 border-dashed border-slate-200 hover:border-indigo-500 rounded-2xl p-3.5 bg-slate-50/50 hover:bg-indigo-50/30 transition cursor-pointer text-center group flex items-center gap-3"
+                  >
+                    <input
+                      id="gallery-upload-input"
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <div className="p-2.5 bg-white shadow-xs rounded-xl border border-slate-200 group-hover:border-indigo-300 shrink-0">
+                      <FaImages className="text-base text-indigo-600" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-xs font-bold text-slate-800 group-hover:text-indigo-600">
+                        Ouvrir la galerie
                       </p>
+                      <p className="text-[10px] text-slate-400">Multiples fichiers</p>
                     </div>
                   </div>
                 </div>

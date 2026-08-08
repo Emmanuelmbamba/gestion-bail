@@ -6,19 +6,20 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const envoyerEmail = require("../services/emailService");
+const smsService = require("../services/smsService");
 
 const BACKEND_URL = process.env.BACKEND_URL || "https://gestion-bail-backend.onrender.com";
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://gestion-bail-frontend.onrender.com";
 
 // ======================
-// REGISTER
+// REGISTER (Inscription avec Code SMS)
 // ======================
 exports.register = async (req, res) => {
-  console.log("=== REGISTER ===");
+  console.log("=== REGISTER (SMS OPTION) ===");
   console.log("Body reçu :", req.body);
 
   try {
-    const { nom, email, password, role } = req.body;
+    const { nom, email, password, role, telephone } = req.body;
 
     const existe = await User.findOne({ email });
     if (existe) {
@@ -28,61 +29,53 @@ exports.register = async (req, res) => {
     }
 
     const hashPassword = await bcrypt.hash(password, 10);
-    const token = crypto.randomBytes(30).toString("hex");
+    const userPhone = telephone && telephone.trim() ? telephone.trim() : "Non renseigné";
+    
+    // Génération du code de validation SMS à 6 chiffres
+    const smsCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const smsCodeExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
     const user = await User.create({
       nom,
       email,
       password: hashPassword,
       role: role || "locataire",
+      telephone: userPhone,
       estConfirme: false,
-      verificationToken: token,
+      smsCode,
+      smsCodeExpires
     });
 
-    // Création automatique du profil Locataire ou Bailleur
+    // Création automatique du profil Locataire ou Bailleur avec le téléphone rattaché
     if (user.role === "locataire") {
       await Locataire.create({
         user: user._id,
         nom: user.nom,
         email: user.email,
-        telephone: "Non renseigné"
+        telephone: userPhone
       });
     } else if (user.role === "bailleur") {
       await Bailleur.create({
         user: user._id,
         nom: user.nom,
         email: user.email,
-        telephone: "Non renseigné"
+        telephone: userPhone
       });
     }
 
-    const urlConfirmation = `${BACKEND_URL}/api/auth/verify/${token}`;
-
-    try {
-      await envoyerEmail(
-        email,
-        "Confirmation de votre compte Gestion-Bail",
-        `Bonjour ${nom},
-
-Merci pour votre inscription sur Gestion-Bail.
-
-Veuillez cliquer sur le lien ci-dessous pour activer votre compte :
-${urlConfirmation}
-
-Si vous n'êtes pas à l'origine de cette inscription, veuillez ignorer ce message.
-
-L'équipe Gestion-Bail`
-      );
-      console.log("✅ Email de confirmation envoyé à :", email);
-    } catch (emailError) {
-      console.log("❌ ERREUR EMAIL DE CONFIRMATION :", emailError);
-    }
+    // Envoi du code SMS
+    await smsService.sendSMSCode(userPhone, smsCode);
 
     return res.status(201).json({
-      message: "Compte créé avec succès ! Un e-mail de confirmation vous a été envoyé pour activer votre compte.",
+      message: "Compte créé avec succès ! Un code de confirmation à 6 chiffres vous a été envoyé par SMS.",
+      requireSmsVerification: true,
+      email: user.email,
+      telephone: user.telephone,
+      smsCode: smsCode, // transmis pour démonstration/test immédiat
       user: {
         nom: user.nom,
         email: user.email,
+        telephone: user.telephone,
         role: user.role
       },
     });
@@ -95,13 +88,132 @@ L'équipe Gestion-Bail`
 };
 
 // ======================
+// VÉRIFICATION CODE SMS
+// ======================
+exports.verifySmsCode = async (req, res) => {
+  try {
+    const { identifier, code } = req.body;
+
+    if (!identifier || !code) {
+      return res.status(400).json({ message: "Veuillez fournir le numéro de téléphone/e-mail et le code SMS." });
+    }
+
+    const cleanCode = code.toString().trim();
+
+    const user = await User.findOne({
+      $or: [
+        { email: identifier.trim() },
+        { telephone: identifier.trim() }
+      ]
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "Compte utilisateur introuvable." });
+    }
+
+    if (user.estConfirme) {
+      return res.status(400).json({ message: "Ce compte est déjà confirmé. Vous pouvez vous connecter." });
+    }
+
+    if (!user.smsCode || user.smsCode !== cleanCode) {
+      return res.status(400).json({ message: "Code de confirmation SMS incorrect." });
+    }
+
+    if (user.smsCodeExpires && user.smsCodeExpires < Date.now()) {
+      return res.status(400).json({ message: "Le code SMS a expiré. Veuillez demander un nouveau code." });
+    }
+
+    user.estConfirme = true;
+    user.smsCode = null;
+    user.smsCodeExpires = null;
+    await user.save();
+
+    // Génération automatique du token JWT de connexion
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+        nom: user.nom,
+        email: user.email,
+      },
+      process.env.JWT_SECRET || "SUPER_SECRET_KEY",
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    res.json({
+      message: "Votre compte a été confirmé avec succès par SMS !",
+      token,
+      user: {
+        id: user._id,
+        nom: user.nom,
+        email: user.email,
+        role: user.role,
+        telephone: user.telephone
+      }
+    });
+  } catch (error) {
+    console.error("Erreur vérification SMS:", error);
+    res.status(500).json({ message: error.message || "Erreur lors de la vérification du code SMS" });
+  }
+};
+
+// ======================
+// RENVOYER CODE SMS
+// ======================
+exports.resendSmsCode = async (req, res) => {
+  try {
+    const { identifier } = req.body;
+
+    if (!identifier) {
+      return res.status(400).json({ message: "Veuillez fournir le numéro de téléphone ou l'adresse e-mail." });
+    }
+
+    const user = await User.findOne({
+      $or: [
+        { email: identifier.trim() },
+        { telephone: identifier.trim() }
+      ]
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur introuvable." });
+    }
+
+    if (user.estConfirme) {
+      return res.status(400).json({ message: "Ce compte a déjà été confirmé." });
+    }
+
+    const newCode = Math.floor(100000 + Math.random() * 900000).toString();
+    user.smsCode = newCode;
+    user.smsCodeExpires = Date.now() + 15 * 60 * 1000;
+    await user.save();
+
+    await smsService.sendSMSCode(user.telephone || identifier, newCode);
+
+    res.json({
+      message: "Un nouveau code de confirmation SMS vous a été envoyé.",
+      smsCode: newCode
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message || "Erreur lors du renvoi du code SMS" });
+  }
+};
+
+// ======================
 // LOGIN
 // ======================
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+      $or: [
+        { email: email ? email.trim() : "" },
+        { telephone: email ? email.trim() : "" }
+      ]
+    });
 
     if (!user) {
       return res.status(404).json({
@@ -111,7 +223,9 @@ exports.login = async (req, res) => {
 
     if (!user.estConfirme) {
       return res.status(403).json({
-        message: "Veuillez confirmer votre adresse e-mail en cliquant sur le lien reçu par e-mail."
+        message: "Veuillez valider votre compte avec le code à 6 chiffres reçu par SMS.",
+        requireSmsVerification: true,
+        identifier: user.telephone || user.email
       });
     }
 

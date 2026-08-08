@@ -11,13 +11,19 @@
         forgotPassword,
         resetPassword,
         deleteAccount,
-        verifyEmail
+        verifyEmail,
+        verifySmsCode,
+        resendSmsCode
     } = require("../controllers/authController");
 
 
     router.post("/register", register);
 
     router.post("/login", login);
+
+    router.post("/verify-sms", verifySmsCode);
+
+    router.post("/resend-sms", resendSmsCode);
 
     router.get("/verify/:token", verifyEmail);
 

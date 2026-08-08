@@ -24,6 +24,11 @@
             default: "locataire"
         },
 
+        telephone: {
+            type: String,
+            default: ""
+        },
+
         resetPasswordToken: {
             type: String,
             default: null
@@ -41,6 +46,16 @@
 
         verificationToken: {
             type: String,
+            default: null
+        },
+
+        smsCode: {
+            type: String,
+            default: null
+        },
+
+        smsCodeExpires: {
+            type: Date,
             default: null
         }
 
